@@ -80,6 +80,7 @@ export default function Patrimonio() {
   const [editingBem, setEditingBem] = useState<Bem | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBaixa, setShowBaixa] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const emptyBem: Omit<Bem, "id"> = {
     descricao: "",
