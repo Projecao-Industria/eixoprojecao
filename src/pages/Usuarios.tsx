@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Plus, User, Shield, Settings, Wrench } from "lucide-react";
+import { Plus, User, Shield, Settings, Wrench, Eye, EyeOff } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import {
   mockUsuarios,
   CATEGORIAS,
@@ -32,6 +34,9 @@ export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>(mockUsuarios);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Usuario | null>(null);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const emptyForm: Omit<Usuario, "id"> = {
     nome: "",
@@ -46,25 +51,55 @@ export default function UsuariosPage() {
   function openNew() {
     setEditing(null);
     setForm(emptyForm);
+    setPassword("");
+    setShowPassword(false);
     setDialogOpen(true);
   }
 
   function openEdit(u: Usuario) {
     setEditing(u);
     setForm({ ...u });
+    setPassword("");
+    setShowPassword(false);
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (editing) {
       setUsuarios((prev) =>
         prev.map((u) => (u.id === editing.id ? { ...form, id: editing.id } : u))
       );
-    } else {
-      const newId = String(usuarios.length + 1);
-      setUsuarios((prev) => [...prev, { ...form, id: newId }]);
+      setDialogOpen(false);
+      return;
     }
-    setDialogOpen(false);
+
+    // New user — create via edge function
+    if (!password || password.length < 6) {
+      toast({ title: "A senha deve ter no mínimo 6 caracteres", variant: "destructive" });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("create-user", {
+        body: { nome: form.nome, email: form.email, password, perfil: form.perfil },
+      });
+
+      if (res.error || res.data?.error) {
+        toast({ title: res.data?.error || "Erro ao criar usuário", variant: "destructive" });
+        return;
+      }
+
+      const newId = res.data.user?.id || String(usuarios.length + 1);
+      setUsuarios((prev) => [...prev, { ...form, id: newId }]);
+      toast({ title: "Usuário criado com sucesso" });
+      setDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: err.message || "Erro ao criar usuário", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   }
 
   function toggleCategoria(cat: Categoria) {
@@ -164,6 +199,27 @@ export default function UsuariosPage() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
             </div>
+            {!editing && (
+              <div>
+                <Label>Senha</Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    maxLength={72}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+            )}
             <div>
               <Label>Perfil</Label>
               <Select
@@ -230,7 +286,9 @@ export default function UsuariosPage() {
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSave}>Salvar</Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? "Criando..." : "Salvar"}
+              </Button>
             </div>
           </div>
         </DialogContent>
