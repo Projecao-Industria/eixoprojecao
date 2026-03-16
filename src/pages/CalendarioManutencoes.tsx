@@ -55,7 +55,7 @@ function isInCurrentWeek(date: Date): boolean {
 
 export default function CalendarioManutencoes() {
   const navigate = useNavigate();
-  const { categoriasPermitidas } = useAuth();
+  const { categoriasPermitidas, setoresPermitidos } = useAuth();
   const [bemId, setBemId] = useState("");
   const [agendas, setAgendas] = useState<Agenda[]>([]);
   const [bens, setBens] = useState<BemSimple[]>([]);
