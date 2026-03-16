@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Trash2 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import {
   formatCurrency,
   formatDate,
