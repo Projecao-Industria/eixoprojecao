@@ -286,7 +286,9 @@ export default function UsuariosPage() {
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSave}>Salvar</Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? "Criando..." : "Salvar"}
+              </Button>
             </div>
           </div>
         </DialogContent>
