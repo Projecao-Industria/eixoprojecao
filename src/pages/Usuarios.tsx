@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, User, Shield, Settings, Wrench, Eye, EyeOff } from "lucide-react";
+import { Plus, User, Shield, Settings, Wrench, Eye, EyeOff, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -37,6 +37,7 @@ export default function UsuariosPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const emptyForm: Omit<Usuario, "id"> = {
     nome: "",
@@ -99,6 +100,31 @@ export default function UsuariosPage() {
       toast({ title: err.message || "Erro ao criar usuário", variant: "destructive" });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!editing) return;
+    if (!confirm(`Tem certeza que deseja excluir ${editing.nome}?`)) return;
+
+    setDeleting(true);
+    try {
+      const res = await supabase.functions.invoke("delete-user", {
+        body: { userId: editing.id },
+      });
+
+      if (res.error || res.data?.error) {
+        toast({ title: res.data?.error || "Erro ao excluir usuário", variant: "destructive" });
+        return;
+      }
+
+      setUsuarios((prev) => prev.filter((u) => u.id !== editing.id));
+      toast({ title: "Usuário excluído com sucesso" });
+      setDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: err.message || "Erro ao excluir", variant: "destructive" });
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -282,13 +308,23 @@ export default function UsuariosPage() {
               </>
             )}
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Criando..." : "Salvar"}
-              </Button>
+            <div className="flex justify-between pt-2">
+              {editing ? (
+                <Button variant="destructive" onClick={handleDelete} disabled={deleting} className="gap-2">
+                  <Trash2 size={14} />
+                  {deleting ? "Excluindo..." : "Excluir"}
+                </Button>
+              ) : (
+                <div />
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving ? "Criando..." : "Salvar"}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
