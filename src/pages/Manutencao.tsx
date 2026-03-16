@@ -286,7 +286,7 @@ export default function ManutencaoPage() {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Bem</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Descrição</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Tipo</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Responsável</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Fornecedor</th>
                 <th className="text-right px-4 py-3 font-medium text-muted-foreground">Custo</th>
               </tr>
             </thead>

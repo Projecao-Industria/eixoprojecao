@@ -311,7 +311,7 @@ export default function HistoricoBem() {
                           <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data</th>
                           <th className="text-left px-4 py-3 font-medium text-muted-foreground">Descrição</th>
                           <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tipo</th>
-                          <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Responsável</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Fornecedor</th>
                           <th className="text-right px-4 py-3 font-medium text-muted-foreground">Custo</th>
                         </tr>
                       </thead>
