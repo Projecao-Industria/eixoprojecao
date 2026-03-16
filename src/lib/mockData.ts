@@ -209,6 +209,7 @@ export const mockBens: Bem[] = [
 export const mockManutencoes: Manutencao[] = [
   {
     id: "1",
+    numero: "00001",
     bemId: "00001",
     descricao: "Troca de disco de corte",
     data: "2024-02-10",
@@ -216,9 +217,11 @@ export const mockManutencoes: Manutencao[] = [
     custo: 150,
     responsavel: "Ivomar",
     observacoes: "Disco desgastado, substituído por novo",
+    itens: [{ id: "1", descricao: "Disco de corte diamantado", custo: 150 }],
   },
   {
     id: "2",
+    numero: "00002",
     bemId: "00003",
     descricao: "Revisão completa 30.000km",
     data: "2024-01-20",
@@ -226,9 +229,15 @@ export const mockManutencoes: Manutencao[] = [
     custo: 1200,
     responsavel: "Ivomar",
     observacoes: "Troca de óleo, filtros e pastilhas de freio",
+    itens: [
+      { id: "1", descricao: "Troca de óleo", custo: 300 },
+      { id: "2", descricao: "Filtros", custo: 400 },
+      { id: "3", descricao: "Pastilhas de freio", custo: 500 },
+    ],
   },
   {
     id: "3",
+    numero: "00003",
     bemId: "00005",
     descricao: "Reparo no alimentador de arame",
     data: "2024-03-05",
@@ -236,9 +245,11 @@ export const mockManutencoes: Manutencao[] = [
     custo: 450,
     responsavel: "Carlos",
     observacoes: "Peça importada, prazo de 5 dias",
+    itens: [{ id: "1", descricao: "Alimentador de arame", custo: 450 }],
   },
   {
     id: "4",
+    numero: "00004",
     bemId: "00002",
     descricao: "Formatação e upgrade de RAM",
     data: "2024-04-12",
@@ -246,6 +257,10 @@ export const mockManutencoes: Manutencao[] = [
     custo: 350,
     responsavel: "TI",
     observacoes: "Upgrade de 8GB para 16GB",
+    itens: [
+      { id: "1", descricao: "Memória RAM 8GB", custo: 200 },
+      { id: "2", descricao: "Serviço de formatação", custo: 150 },
+    ],
   },
 ];
 
