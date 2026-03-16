@@ -10,6 +10,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   perfil: PerfilUsuario | null;
+  nome: string | null;
   signOut: () => Promise<void>;
 }
 
