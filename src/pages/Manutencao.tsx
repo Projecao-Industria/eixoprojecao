@@ -1,8 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Trash2 } from "lucide-react";
 import {
-  mockManutencoes,
-  mockBens,
   formatCurrency,
   formatDate,
   generateNextManutencaoNumero,
@@ -10,6 +8,7 @@ import {
   type ManutencaoItem,
   type Bem,
 } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
