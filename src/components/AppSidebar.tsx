@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, CalendarDays, LogOut } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
 import { useAuth } from "@/contexts/AuthContext";
