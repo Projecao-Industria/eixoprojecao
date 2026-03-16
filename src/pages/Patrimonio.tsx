@@ -348,6 +348,14 @@ export default function Patrimonio() {
               >
                 <History size={14} /> Histórico
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteConfirmOpen(true)}
+              >
+                <Trash2 size={14} /> Excluir
+              </Button>
             </div>
           )}
 
