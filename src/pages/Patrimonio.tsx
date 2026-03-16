@@ -179,6 +179,21 @@ export default function Patrimonio() {
     fetchAll();
   }
 
+  async function handleDeleteBem() {
+    if (!editingBem) return;
+    await supabase.from("bem_extras").delete().eq("bem_id", editingBem.id);
+    await supabase.from("manutencao_agenda").delete().eq("bem_id", editingBem.id);
+    const { error } = await supabase.from("bens").delete().eq("id", editingBem.id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Bem excluído com sucesso" });
+    }
+    setDeleteConfirmOpen(false);
+    setDialogOpen(false);
+    fetchAll();
+  }
+
   const isViewMode = editingBem && !isEditing;
   const isCreating = !editingBem;
 
