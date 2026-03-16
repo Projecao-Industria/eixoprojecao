@@ -175,7 +175,7 @@ export default function ManutencaoPage() {
       bem_id: form.bemId,
       descricao: form.descricao,
       data: form.data,
-      tipo: form.tipo,
+      tipo: form.tipo as "Preventiva" | "Corretiva",
       custo,
       responsavel: form.responsavel,
       observacoes: form.observacoes,
