@@ -25,7 +25,7 @@ import CurrencyInput from "@/components/CurrencyInput";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
-  const { categoriasPermitidas } = useAuth();
+  const { categoriasPermitidas, setoresPermitidos } = useAuth();
   const [bens, setBens] = useState<Bem[]>([]);
   const [categoriasDB, setCategoriasDB] = useState<{ id: string; nome: string }[]>([]);
   const [setoresDB, setSetoresDB] = useState<{ id: string; nome: string }[]>([]);
