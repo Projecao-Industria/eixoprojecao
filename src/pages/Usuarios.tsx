@@ -383,14 +383,14 @@ export default function UsuariosPage() {
                 <div>
                   <Label className="mb-2 block">Categorias</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {CATEGORIAS.map((cat) => (
+                    {categoriasDB.map((cat) => (
                       <label
                         key={cat}
                         className="flex items-center gap-2 text-sm cursor-pointer"
                       >
                         <Checkbox
-                          checked={form.categorias.includes(cat)}
-                          onCheckedChange={() => toggleCategoria(cat)}
+                          checked={form.categorias.includes(cat as Categoria)}
+                          onCheckedChange={() => toggleCategoria(cat as Categoria)}
                         />
                         {cat}
                       </label>
