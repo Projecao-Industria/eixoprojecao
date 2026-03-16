@@ -34,6 +34,21 @@ Deno.serve(async (req) => {
       });
     }
 
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+    // Verify caller is a Diretor
+    const { data: callerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("perfil")
+      .eq("id", caller.id)
+      .single();
+    if (callerProfile?.perfil !== "Diretor") {
+      return new Response(JSON.stringify({ error: "Acesso negado: apenas Diretores podem excluir usuários" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { userId } = await req.json();
 
     if (!userId) {

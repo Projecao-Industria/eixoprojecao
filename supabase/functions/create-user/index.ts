@@ -34,6 +34,20 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Verify caller is a Diretor
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const { data: callerProfile } = await adminClient
+      .from("profiles")
+      .select("perfil")
+      .eq("id", caller.id)
+      .single();
+    if (callerProfile?.perfil !== "Diretor") {
+      return new Response(JSON.stringify({ error: "Acesso negado: apenas Diretores podem criar usuários" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { nome, email, password, perfil } = await req.json();
 
     // Validate inputs
