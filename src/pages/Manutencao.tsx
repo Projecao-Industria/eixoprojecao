@@ -268,7 +268,7 @@ export default function ManutencaoPage() {
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nº manutenção, nº bem, descrição ou responsável..."
+            placeholder="Buscar por nº manutenção, nº bem, descrição ou fornecedor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
