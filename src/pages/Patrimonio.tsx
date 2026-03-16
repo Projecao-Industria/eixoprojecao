@@ -374,7 +374,7 @@ export default function Patrimonio() {
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {SETORES.map((s) => (
+                    {setoresDB.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
