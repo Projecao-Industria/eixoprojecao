@@ -36,7 +36,7 @@ interface ManutencaoDB {
   data: string;
   tipo: string;
   custo: number;
-  responsavel: string;
+  fornecedor: string;
 }
 
 export default function HistoricoBem() {
