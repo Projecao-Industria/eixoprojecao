@@ -519,15 +519,45 @@ export default function ManutencaoPage() {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSave}>Salvar</Button>
+            <div className="flex justify-between pt-2">
+              <div>
+                {editing && (
+                  <Button
+                    variant="ghost"
+                    className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                  >
+                    <Trash2 size={14} /> Excluir
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave}>Salvar</Button>
+              </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Manutenção #{editing?.numero}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja mesmo prosseguir com a exclusão desta manutenção? Esta ação não poderá ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteManutencao} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
