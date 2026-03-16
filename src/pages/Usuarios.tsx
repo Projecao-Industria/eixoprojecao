@@ -309,13 +309,23 @@ export default function UsuariosPage() {
               </>
             )}
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Criando..." : "Salvar"}
-              </Button>
+            <div className="flex justify-between pt-2">
+              {editing ? (
+                <Button variant="destructive" onClick={handleDelete} disabled={deleting} className="gap-2">
+                  <Trash2 size={14} />
+                  {deleting ? "Excluindo..." : "Excluir"}
+                </Button>
+              ) : (
+                <div />
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving ? "Criando..." : "Salvar"}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
