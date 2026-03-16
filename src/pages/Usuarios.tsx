@@ -40,7 +40,9 @@ export default function UsuariosPage() {
         supabase.from("profile_setores").select("profile_id, setor_id, setores(nome)"),
         supabase.from("categorias").select("id, nome"),
         supabase.from("setores").select("id, nome").order("nome"),
-      ]);
+    ]);
+      if (categoriasDb) setCategoriasDB(categoriasDb.map((c: any) => c.nome));
+      if (setoresDb) setSetoresDB(setoresDb.map((s: any) => s.nome));
       if (profiles) {
         const mapped: Usuario[] = profiles.map((p: any) => {
           const cats = (profCats || [])
