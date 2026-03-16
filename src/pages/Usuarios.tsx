@@ -400,14 +400,14 @@ export default function UsuariosPage() {
                 <div>
                   <Label className="mb-2 block">Setores</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {SETORES.map((setor) => (
+                    {setoresDB.map((setor) => (
                       <label
                         key={setor}
                         className="flex items-center gap-2 text-sm cursor-pointer"
                       >
                         <Checkbox
-                          checked={form.setores.includes(setor)}
-                          onCheckedChange={() => toggleSetor(setor)}
+                          checked={form.setores.includes(setor as Setor)}
+                          onCheckedChange={() => toggleSetor(setor as Setor)}
                         />
                         {setor}
                       </label>
