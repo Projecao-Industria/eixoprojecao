@@ -157,7 +157,8 @@ export default function ManutencaoPage() {
     data: "",
     tipo: "Preventiva",
     custo: 0,
-    responsavel: "",
+    fornecedor: "",
+    nfePedido: "",
     observacoes: "",
     itens: [],
   };
