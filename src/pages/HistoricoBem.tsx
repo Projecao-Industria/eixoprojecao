@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Package, Wrench, FileText, Car, Cog } from "lucide-react";
+import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
   mockBens,
@@ -12,12 +12,15 @@ import {
 } from "@/lib/mockData";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 export default function HistoricoBem() {
   const [searchParams] = useSearchParams();
   const [bemId, setBemId] = useState(searchParams.get("bem") || "");
   const [extraFields, setExtraFields] = useState<Record<string, string>>({});
+  const [editingExtras, setEditingExtras] = useState(false);
 
   const bem = useMemo(() => mockBens.find((b) => b.id === bemId), [bemId]);
   const manutencoes = useMemo(
@@ -152,42 +155,37 @@ export default function HistoricoBem() {
               {/* Vehicle-specific fields */}
               {isVeiculo && (
                 <div className="bg-card rounded-xl border border-border p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Car size={18} className="text-primary" />
-                    <h2 className="font-display font-semibold">Especificações do Veículo</h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Car size={18} className="text-primary" />
+                      <h2 className="font-display font-semibold">Especificações do Veículo</h2>
+                    </div>
+                    {editingExtras ? (
+                      <Button size="sm" className="gap-1" onClick={() => { setEditingExtras(false); toast.success("Especificações salvas!"); }}>
+                        <Save size={14} /> Salvar
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" className="gap-1" onClick={() => setEditingExtras(true)}>
+                        <Pencil size={14} /> Editar
+                      </Button>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Placa</Label>
-                      <Input
-                        value={extraFields.placa || ""}
-                        onChange={(e) => setExtraFields({ ...extraFields, placa: e.target.value })}
-                        placeholder="ABC-1234"
-                      />
+                      <Input value={extraFields.placa || ""} onChange={(e) => setExtraFields({ ...extraFields, placa: e.target.value })} placeholder="ABC-1234" disabled={!editingExtras} />
                     </div>
                     <div>
                       <Label>KM na Data de Compra</Label>
-                      <Input
-                        value={extraFields.kmCompra || ""}
-                        onChange={(e) => setExtraFields({ ...extraFields, kmCompra: e.target.value })}
-                        placeholder="0"
-                      />
+                      <Input value={extraFields.kmCompra || ""} onChange={(e) => setExtraFields({ ...extraFields, kmCompra: e.target.value })} placeholder="0" disabled={!editingExtras} />
                     </div>
                     <div>
                       <Label>Renavam</Label>
-                      <Input
-                        value={extraFields.renavam || ""}
-                        onChange={(e) => setExtraFields({ ...extraFields, renavam: e.target.value })}
-                        placeholder="Renavam"
-                      />
+                      <Input value={extraFields.renavam || ""} onChange={(e) => setExtraFields({ ...extraFields, renavam: e.target.value })} placeholder="Renavam" disabled={!editingExtras} />
                     </div>
                     <div>
                       <Label>Chassi</Label>
-                      <Input
-                        value={extraFields.chassi || ""}
-                        onChange={(e) => setExtraFields({ ...extraFields, chassi: e.target.value })}
-                        placeholder="Chassi"
-                      />
+                      <Input value={extraFields.chassi || ""} onChange={(e) => setExtraFields({ ...extraFields, chassi: e.target.value })} placeholder="Chassi" disabled={!editingExtras} />
                     </div>
                   </div>
                 </div>
@@ -196,26 +194,29 @@ export default function HistoricoBem() {
               {/* Machine-specific fields */}
               {isMaquina && (
                 <div className="bg-card rounded-xl border border-border p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Cog size={18} className="text-primary" />
-                    <h2 className="font-display font-semibold">Especificações da Máquina</h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Cog size={18} className="text-primary" />
+                      <h2 className="font-display font-semibold">Especificações da Máquina</h2>
+                    </div>
+                    {editingExtras ? (
+                      <Button size="sm" className="gap-1" onClick={() => { setEditingExtras(false); toast.success("Especificações salvas!"); }}>
+                        <Save size={14} /> Salvar
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" className="gap-1" onClick={() => setEditingExtras(true)}>
+                        <Pencil size={14} /> Editar
+                      </Button>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Número de Série</Label>
-                      <Input
-                        value={extraFields.numSerie || ""}
-                        onChange={(e) => setExtraFields({ ...extraFields, numSerie: e.target.value })}
-                        placeholder="Número de série"
-                      />
+                      <Input value={extraFields.numSerie || ""} onChange={(e) => setExtraFields({ ...extraFields, numSerie: e.target.value })} placeholder="Número de série" disabled={!editingExtras} />
                     </div>
                     <div>
                       <Label>Modelo</Label>
-                      <Input
-                        value={extraFields.modelo || ""}
-                        onChange={(e) => setExtraFields({ ...extraFields, modelo: e.target.value })}
-                        placeholder="Modelo"
-                      />
+                      <Input value={extraFields.modelo || ""} onChange={(e) => setExtraFields({ ...extraFields, modelo: e.target.value })} placeholder="Modelo" disabled={!editingExtras} />
                     </div>
                   </div>
                 </div>
