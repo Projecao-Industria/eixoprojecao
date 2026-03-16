@@ -2,36 +2,168 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
-  mockBens,
-  mockManutencoes,
   formatCurrency,
   formatDate,
   calcularValorResidual,
-  type Bem,
-  type Manutencao,
 } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
+interface BemDB {
+  id: string;
+  descricao: string;
+  categoria: string;
+  setor: string;
+  usuario: string;
+  dataCompra: string;
+  nfe: string;
+  valorCompra: number;
+  depreciacaoAnual: number;
+  dataBaixa: string | null;
+  motivoBaixa: string;
+  status: string;
+}
+
+interface ManutencaoDB {
+  id: string;
+  numero: string;
+  bemId: string;
+  descricao: string;
+  data: string;
+  tipo: string;
+  custo: number;
+  responsavel: string;
+}
+
 export default function HistoricoBem() {
   const [searchParams] = useSearchParams();
   const [bemId, setBemId] = useState(searchParams.get("bem") || "");
   const [extraFields, setExtraFields] = useState<Record<string, string>>({});
   const [editingExtras, setEditingExtras] = useState(false);
-
-  const bem = useMemo(() => mockBens.find((b) => b.id === bemId), [bemId]);
-  const manutencoes = useMemo(
-    () => (bem ? mockManutencoes.filter((m) => m.bemId === bem.id).sort((a, b) => b.data.localeCompare(a.data)) : []),
-    [bem]
-  );
+  const [bem, setBem] = useState<BemDB | null>(null);
+  const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fromUrl = searchParams.get("bem");
     if (fromUrl) setBemId(fromUrl);
   }, [searchParams]);
+
+  // Fetch bem from Supabase when bemId changes
+  useEffect(() => {
+    if (!bemId) { setBem(null); setManutencoes([]); return; }
+
+    const fetchBem = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("bens")
+        .select("*, categorias(nome), setores(nome)")
+        .eq("id", bemId)
+        .maybeSingle();
+
+      if (error || !data) {
+        setBem(null);
+        setManutencoes([]);
+        setExtraFields({});
+        setLoading(false);
+        return;
+      }
+
+      const catNome = (data as any).categorias?.nome || "";
+      const setNome = (data as any).setores?.nome || "";
+
+      setBem({
+        id: data.id,
+        descricao: data.descricao,
+        categoria: catNome,
+        setor: setNome,
+        usuario: data.usuario,
+        dataCompra: data.data_compra,
+        nfe: data.nfe,
+        valorCompra: data.valor_compra,
+        depreciacaoAnual: data.depreciacao_anual,
+        dataBaixa: data.data_baixa,
+        motivoBaixa: data.motivo_baixa,
+        status: data.status,
+      });
+
+      // Fetch extras
+      const { data: extras } = await supabase
+        .from("bem_extras")
+        .select("*")
+        .eq("bem_id", bemId)
+        .maybeSingle();
+
+      if (extras) {
+        setExtraFields({
+          placa: extras.placa || "",
+          kmCompra: extras.km || "",
+          renavam: extras.renavam || "",
+          chassi: extras.chassi || "",
+          numSerie: extras.numero_serie || "",
+          modelo: extras.modelo || "",
+        });
+      } else {
+        setExtraFields({});
+      }
+
+      // Fetch manutencoes
+      const { data: mData } = await supabase
+        .from("manutencoes")
+        .select("*")
+        .eq("bem_id", bemId)
+        .order("data", { ascending: false });
+
+      setManutencoes(
+        (mData || []).map((m) => ({
+          id: m.id,
+          numero: m.numero,
+          bemId: m.bem_id,
+          descricao: m.descricao,
+          data: m.data,
+          tipo: m.tipo,
+          custo: m.custo,
+          responsavel: m.responsavel,
+        }))
+      );
+
+      setLoading(false);
+    };
+
+    fetchBem();
+  }, [bemId]);
+
+  const handleSaveExtras = async () => {
+    if (!bem) return;
+    const payload = {
+      bem_id: bem.id,
+      placa: extraFields.placa || "",
+      km: extraFields.kmCompra || "",
+      renavam: extraFields.renavam || "",
+      chassi: extraFields.chassi || "",
+      numero_serie: extraFields.numSerie || "",
+      modelo: extraFields.modelo || "",
+    };
+
+    const { data: existing } = await supabase
+      .from("bem_extras")
+      .select("id")
+      .eq("bem_id", bem.id)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("bem_extras").update(payload).eq("bem_id", bem.id);
+    } else {
+      await supabase.from("bem_extras").insert(payload);
+    }
+
+    setEditingExtras(false);
+    toast.success("Especificações salvas!");
+  };
 
   const isVeiculo = bem?.categoria === "Veículos";
   const isMaquina = bem?.categoria === "Máquinas";
@@ -45,7 +177,6 @@ export default function HistoricoBem() {
         </p>
       </div>
 
-      {/* Search box */}
       <div className="bg-card rounded-xl border border-border p-4 animate-fade-in">
         <Label className="text-sm font-medium mb-2 block">Número do Bem</Label>
         <div className="relative max-w-sm">
@@ -59,15 +190,13 @@ export default function HistoricoBem() {
         </div>
       </div>
 
-      {/* Bem not found */}
-      {bemId && !bem && (
+      {bemId && !bem && !loading && (
         <div className="bg-card rounded-xl border border-border p-8 text-center animate-fade-in">
           <Package size={32} className="mx-auto text-muted-foreground mb-2" />
           <p className="text-muted-foreground">Nenhum bem encontrado com o número informado.</p>
         </div>
       )}
 
-      {/* Bem found */}
       {bem && (
         <div className="animate-fade-in">
           <Tabs defaultValue="detalhes">
@@ -81,7 +210,6 @@ export default function HistoricoBem() {
             </TabsList>
 
             <TabsContent value="detalhes" className="mt-4 space-y-4">
-              {/* General info */}
               <div className="bg-card rounded-xl border border-border p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Package size={18} className="text-primary" />
@@ -97,62 +225,25 @@ export default function HistoricoBem() {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">ID</span>
-                    <p className="font-mono font-medium">#{bem.id}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Descrição</span>
-                    <p className="font-medium">{bem.descricao}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Categoria</span>
-                    <p className="font-medium">{bem.categoria}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Setor</span>
-                    <p className="font-medium">{bem.setor}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Usuário</span>
-                    <p className="font-medium">{bem.usuario}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">NFe</span>
-                    <p className="font-medium">{bem.nfe}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Data Compra</span>
-                    <p className="font-medium">{formatDate(bem.dataCompra)}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Valor Compra</span>
-                    <p className="font-medium">{formatCurrency(bem.valorCompra)}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Valor Residual</span>
-                    <p className="font-medium">{formatCurrency(calcularValorResidual(bem.valorCompra, bem.depreciacaoAnual, bem.dataCompra))}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Depreciação</span>
-                    <p className="font-medium">{bem.depreciacaoAnual}% a.a.</p>
-                  </div>
+                  <div><span className="text-muted-foreground">ID</span><p className="font-mono font-medium">#{bem.id}</p></div>
+                  <div><span className="text-muted-foreground">Descrição</span><p className="font-medium">{bem.descricao}</p></div>
+                  <div><span className="text-muted-foreground">Categoria</span><p className="font-medium">{bem.categoria}</p></div>
+                  <div><span className="text-muted-foreground">Setor</span><p className="font-medium">{bem.setor}</p></div>
+                  <div><span className="text-muted-foreground">Usuário</span><p className="font-medium">{bem.usuario}</p></div>
+                  <div><span className="text-muted-foreground">NFe</span><p className="font-medium">{bem.nfe}</p></div>
+                  <div><span className="text-muted-foreground">Data Compra</span><p className="font-medium">{formatDate(bem.dataCompra)}</p></div>
+                  <div><span className="text-muted-foreground">Valor Compra</span><p className="font-medium">{formatCurrency(bem.valorCompra)}</p></div>
+                  <div><span className="text-muted-foreground">Valor Residual</span><p className="font-medium">{formatCurrency(calcularValorResidual(bem.valorCompra, bem.depreciacaoAnual as any, bem.dataCompra))}</p></div>
+                  <div><span className="text-muted-foreground">Depreciação</span><p className="font-medium">{bem.depreciacaoAnual}% a.a.</p></div>
                   {bem.dataBaixa && (
-                    <div>
-                      <span className="text-muted-foreground">Data Baixa</span>
-                      <p className="font-medium">{formatDate(bem.dataBaixa)}</p>
-                    </div>
+                    <div><span className="text-muted-foreground">Data Baixa</span><p className="font-medium">{formatDate(bem.dataBaixa)}</p></div>
                   )}
                   {bem.motivoBaixa && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground">Motivo Baixa</span>
-                      <p className="font-medium">{bem.motivoBaixa}</p>
-                    </div>
+                    <div className="col-span-2"><span className="text-muted-foreground">Motivo Baixa</span><p className="font-medium">{bem.motivoBaixa}</p></div>
                   )}
                 </div>
               </div>
 
-              {/* Vehicle-specific fields */}
               {isVeiculo && (
                 <div className="bg-card rounded-xl border border-border p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -161,7 +252,7 @@ export default function HistoricoBem() {
                       <h2 className="font-display font-semibold">Especificações do Veículo</h2>
                     </div>
                     {editingExtras ? (
-                      <Button size="sm" className="gap-1" onClick={() => { setEditingExtras(false); toast.success("Especificações salvas!"); }}>
+                      <Button size="sm" className="gap-1" onClick={handleSaveExtras}>
                         <Save size={14} /> Salvar
                       </Button>
                     ) : (
@@ -171,27 +262,14 @@ export default function HistoricoBem() {
                     )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Placa</Label>
-                      <Input value={extraFields.placa || ""} onChange={(e) => setExtraFields({ ...extraFields, placa: e.target.value })} placeholder="ABC-1234" disabled={!editingExtras} />
-                    </div>
-                    <div>
-                      <Label>KM na Data de Compra</Label>
-                      <Input value={extraFields.kmCompra || ""} onChange={(e) => setExtraFields({ ...extraFields, kmCompra: e.target.value })} placeholder="0" disabled={!editingExtras} />
-                    </div>
-                    <div>
-                      <Label>Renavam</Label>
-                      <Input value={extraFields.renavam || ""} onChange={(e) => setExtraFields({ ...extraFields, renavam: e.target.value })} placeholder="Renavam" disabled={!editingExtras} />
-                    </div>
-                    <div>
-                      <Label>Chassi</Label>
-                      <Input value={extraFields.chassi || ""} onChange={(e) => setExtraFields({ ...extraFields, chassi: e.target.value })} placeholder="Chassi" disabled={!editingExtras} />
-                    </div>
+                    <div><Label>Placa</Label><Input value={extraFields.placa || ""} onChange={(e) => setExtraFields({ ...extraFields, placa: e.target.value })} placeholder="ABC-1234" disabled={!editingExtras} /></div>
+                    <div><Label>KM na Data de Compra</Label><Input value={extraFields.kmCompra || ""} onChange={(e) => setExtraFields({ ...extraFields, kmCompra: e.target.value })} placeholder="0" disabled={!editingExtras} /></div>
+                    <div><Label>Renavam</Label><Input value={extraFields.renavam || ""} onChange={(e) => setExtraFields({ ...extraFields, renavam: e.target.value })} placeholder="Renavam" disabled={!editingExtras} /></div>
+                    <div><Label>Chassi</Label><Input value={extraFields.chassi || ""} onChange={(e) => setExtraFields({ ...extraFields, chassi: e.target.value })} placeholder="Chassi" disabled={!editingExtras} /></div>
                   </div>
                 </div>
               )}
 
-              {/* Machine-specific fields */}
               {isMaquina && (
                 <div className="bg-card rounded-xl border border-border p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -200,7 +278,7 @@ export default function HistoricoBem() {
                       <h2 className="font-display font-semibold">Especificações da Máquina</h2>
                     </div>
                     {editingExtras ? (
-                      <Button size="sm" className="gap-1" onClick={() => { setEditingExtras(false); toast.success("Especificações salvas!"); }}>
+                      <Button size="sm" className="gap-1" onClick={handleSaveExtras}>
                         <Save size={14} /> Salvar
                       </Button>
                     ) : (
@@ -210,14 +288,8 @@ export default function HistoricoBem() {
                     )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Número de Série</Label>
-                      <Input value={extraFields.numSerie || ""} onChange={(e) => setExtraFields({ ...extraFields, numSerie: e.target.value })} placeholder="Número de série" disabled={!editingExtras} />
-                    </div>
-                    <div>
-                      <Label>Modelo</Label>
-                      <Input value={extraFields.modelo || ""} onChange={(e) => setExtraFields({ ...extraFields, modelo: e.target.value })} placeholder="Modelo" disabled={!editingExtras} />
-                    </div>
+                    <div><Label>Número de Série</Label><Input value={extraFields.numSerie || ""} onChange={(e) => setExtraFields({ ...extraFields, numSerie: e.target.value })} placeholder="Número de série" disabled={!editingExtras} /></div>
+                    <div><Label>Modelo</Label><Input value={extraFields.modelo || ""} onChange={(e) => setExtraFields({ ...extraFields, modelo: e.target.value })} placeholder="Modelo" disabled={!editingExtras} /></div>
                   </div>
                 </div>
               )}
@@ -250,15 +322,9 @@ export default function HistoricoBem() {
                             <td className="px-4 py-3 text-muted-foreground">{formatDate(m.data)}</td>
                             <td className="px-4 py-3 font-medium">{m.descricao}</td>
                             <td className="px-4 py-3">
-                              <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
-                                  m.tipo === "Preventiva"
-                                    ? "bg-accent/15 text-accent border-accent/30"
-                                    : "bg-warning/15 text-warning-foreground border-warning/30"
-                                }`}
-                              >
-                                {m.tipo}
-                              </span>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                                m.tipo === "Preventiva" ? "bg-accent/15 text-accent border-accent/30" : "bg-warning/15 text-warning-foreground border-warning/30"
+                              }`}>{m.tipo}</span>
                             </td>
                             <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">{m.responsavel}</td>
                             <td className="px-4 py-3 text-right font-medium">{formatCurrency(m.custo)}</td>
