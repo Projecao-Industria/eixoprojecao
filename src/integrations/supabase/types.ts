@@ -139,6 +139,41 @@ export type Database = {
         }
         Relationships: []
       }
+      manutencao_agenda: {
+        Row: {
+          bem_id: string
+          created_at: string
+          descricao: string
+          frequencia: Database["public"]["Enums"]["frequencia_manutencao"]
+          id: string
+          primeira_data: string
+        }
+        Insert: {
+          bem_id: string
+          created_at?: string
+          descricao?: string
+          frequencia?: Database["public"]["Enums"]["frequencia_manutencao"]
+          id?: string
+          primeira_data: string
+        }
+        Update: {
+          bem_id?: string
+          created_at?: string
+          descricao?: string
+          frequencia?: Database["public"]["Enums"]["frequencia_manutencao"]
+          id?: string
+          primeira_data?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manutencao_agenda_bem_id_fkey"
+            columns: ["bem_id"]
+            isOneToOne: false
+            referencedRelation: "bens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manutencao_itens: {
         Row: {
           custo: number
@@ -334,6 +369,7 @@ export type Database = {
       is_diretor: { Args: never; Returns: boolean }
     }
     Enums: {
+      frequencia_manutencao: "Semanal" | "Quinzenal" | "Mensal" | "Trimestral"
       perfil_usuario: "Diretor" | "Gestor" | "Manutenção"
       status_bem: "Ativo" | "Baixado"
       tipo_manutencao: "Preventiva" | "Corretiva"
@@ -464,6 +500,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      frequencia_manutencao: ["Semanal", "Quinzenal", "Mensal", "Trimestral"],
       perfil_usuario: ["Diretor", "Gestor", "Manutenção"],
       status_bem: ["Ativo", "Baixado"],
       tipo_manutencao: ["Preventiva", "Corretiva"],
