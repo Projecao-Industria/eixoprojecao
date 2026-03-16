@@ -38,8 +38,6 @@ export default function UsuariosPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   const emptyForm: Omit<Usuario, "id"> = {
     nome: "",
