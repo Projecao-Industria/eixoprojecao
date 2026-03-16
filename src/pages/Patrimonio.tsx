@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,14 +7,13 @@ import {
   formatDate,
   generateNextId,
   calcularValorResidual,
-  CATEGORIAS,
-  SETORES,
   DEPRECIACOES,
   type Bem,
   type Categoria,
   type Setor,
   type DepreciacaoAnual,
 } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +25,20 @@ import CurrencyInput from "@/components/CurrencyInput";
 export default function Patrimonio() {
   const navigate = useNavigate();
   const [bens, setBens] = useState<Bem[]>(mockBens);
+  const [categoriasDB, setCategoriasDB] = useState<string[]>([]);
+  const [setoresDB, setSetoresDB] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchLists() {
+      const [catRes, setRes] = await Promise.all([
+        supabase.from("categorias").select("nome").order("nome"),
+        supabase.from("setores").select("nome").order("nome"),
+      ]);
+      if (catRes.data) setCategoriasDB(catRes.data.map((c: any) => c.nome));
+      if (setRes.data) setSetoresDB(setRes.data.map((s: any) => s.nome));
+    }
+    fetchLists();
+  }, []);
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState<string>("all");
   const [filterSetor, setFilterSetor] = useState<string>("all");
@@ -155,7 +168,7 @@ export default function Patrimonio() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas Categorias</SelectItem>
-              {CATEGORIAS.map((c) => (
+              {categoriasDB.map((c) => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>
@@ -166,7 +179,7 @@ export default function Patrimonio() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos Setores</SelectItem>
-              {SETORES.map((s) => (
+              {setoresDB.map((s) => (
                 <SelectItem key={s} value={s}>{s}</SelectItem>
               ))}
             </SelectContent>
@@ -346,7 +359,7 @@ export default function Patrimonio() {
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIAS.map((c) => (
+                    {categoriasDB.map((c) => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
@@ -361,7 +374,7 @@ export default function Patrimonio() {
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {SETORES.map((s) => (
+                    {setoresDB.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
