@@ -61,7 +61,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<LoginGuard />} />
             <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<NonManutencaoRoute><Dashboard /></NonManutencaoRoute>} />
               <Route path="/patrimonio" element={<Patrimonio />} />
               <Route path="/manutencao" element={<Manutencao />} />
               <Route path="/usuarios" element={<DirectorRoute><Usuarios /></DirectorRoute>} />
