@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 const allLinks = [
-  { to: "/", label: "Painel", icon: LayoutDashboard, directorOnly: false },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, directorOnly: false },
   { to: "/patrimonio", label: "Patrimônio", icon: Package, directorOnly: false },
   { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false },
   { to: "/historico", label: "Histórico", icon: History, directorOnly: false },
