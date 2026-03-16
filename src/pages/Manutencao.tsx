@@ -124,6 +124,9 @@ export default function ManutencaoPage() {
     if (categoriasPermitidas) {
       bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
     }
+    if (setoresPermitidos) {
+      bensQuery = (bensQuery as any).in("setor_id", setoresPermitidos);
+    }
     const bensRes = await bensQuery;
 
     const allowedBemIds: string[] = [];

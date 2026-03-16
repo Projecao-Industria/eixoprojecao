@@ -76,11 +76,14 @@ export default function CalendarioManutencoes() {
       if (categoriasPermitidas) {
         q = q.in("categoria_id", categoriasPermitidas);
       }
+      if (setoresPermitidos) {
+        q = (q as any).in("setor_id", setoresPermitidos);
+      }
       const { data } = await q;
       setBens((data || []).map((b: any) => ({ id: b.id, descricao: b.descricao })));
     }
     fetchBens();
-  }, [categoriasPermitidas]);
+  }, [categoriasPermitidas, setoresPermitidos]);
 
   // Fetch all agendas
   useEffect(() => {
