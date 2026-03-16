@@ -256,6 +256,20 @@ export default function ManutencaoPage() {
     fetchAll();
   }
 
+  async function handleDeleteManutencao() {
+    if (!editing) return;
+    await supabase.from("manutencao_itens").delete().eq("manutencao_id", editing.id);
+    const { error } = await supabase.from("manutencoes").delete().eq("id", editing.id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Manutenção excluída com sucesso" });
+    }
+    setDeleteConfirmOpen(false);
+    setDialogOpen(false);
+    fetchAll();
+  }
+
   function addItem() {
     const newItem: ManutencaoItem = {
       id: String(form.itens.length + 1),
