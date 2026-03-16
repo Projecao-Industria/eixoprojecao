@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import NotificationButton from "./NotificationButton";
 
 const allLinks = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, directorOnly: false, hideForManutencao: true },
