@@ -331,7 +331,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_diretor: { Args: never; Returns: boolean }
     }
     Enums: {
       perfil_usuario: "Diretor" | "Gestor" | "Manutenção"
