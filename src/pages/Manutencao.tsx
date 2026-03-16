@@ -173,7 +173,7 @@ export default function ManutencaoPage() {
       m.numero.includes(q) ||
       m.bemId.includes(search) ||
       bem?.descricao.toLowerCase().includes(q) ||
-      m.responsavel.toLowerCase().includes(q)
+      m.fornecedor.toLowerCase().includes(q)
     );
   });
 
