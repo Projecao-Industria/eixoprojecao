@@ -3,9 +3,6 @@ import { Plus, User, Shield, Settings, Wrench, Eye, EyeOff, Trash2 } from "lucid
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
-  mockUsuarios,
-  CATEGORIAS,
-  SETORES,
   type Usuario,
   type PerfilUsuario,
   type Categoria,
@@ -32,6 +29,8 @@ const perfilColors: Record<PerfilUsuario, string> = {
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [categoriasDB, setCategoriasDB] = useState<string[]>([]);
+  const [setoresDB, setSetoresDB] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchUsuarios() {
@@ -40,8 +39,10 @@ export default function UsuariosPage() {
         supabase.from("profile_categorias").select("profile_id, categoria_id, categorias(nome)"),
         supabase.from("profile_setores").select("profile_id, setor_id, setores(nome)"),
         supabase.from("categorias").select("id, nome"),
-        supabase.from("setores").select("id, nome"),
-      ]);
+        supabase.from("setores").select("id, nome").order("nome"),
+    ]);
+      if (categoriasDb) setCategoriasDB(categoriasDb.map((c: any) => c.nome));
+      if (setoresDb) setSetoresDB(setoresDb.map((s: any) => s.nome));
       if (profiles) {
         const mapped: Usuario[] = profiles.map((p: any) => {
           const cats = (profCats || [])
@@ -363,8 +364,8 @@ export default function UsuariosPage() {
                   setForm({
                     ...form,
                     perfil,
-                    categorias: perfil !== "Manutenção" ? [...CATEGORIAS] : form.categorias,
-                    setores: perfil !== "Manutenção" ? [...SETORES] : form.setores,
+                    categorias: perfil !== "Manutenção" ? [...categoriasDB] as Categoria[] : form.categorias,
+                    setores: perfil !== "Manutenção" ? [...setoresDB] as Setor[] : form.setores,
                   });
                 }}
               >
@@ -382,14 +383,14 @@ export default function UsuariosPage() {
                 <div>
                   <Label className="mb-2 block">Categorias</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {CATEGORIAS.map((cat) => (
+                    {categoriasDB.map((cat) => (
                       <label
                         key={cat}
                         className="flex items-center gap-2 text-sm cursor-pointer"
                       >
                         <Checkbox
-                          checked={form.categorias.includes(cat)}
-                          onCheckedChange={() => toggleCategoria(cat)}
+                          checked={form.categorias.includes(cat as Categoria)}
+                          onCheckedChange={() => toggleCategoria(cat as Categoria)}
                         />
                         {cat}
                       </label>
@@ -399,14 +400,14 @@ export default function UsuariosPage() {
                 <div>
                   <Label className="mb-2 block">Setores</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {SETORES.map((setor) => (
+                    {setoresDB.map((setor) => (
                       <label
                         key={setor}
                         className="flex items-center gap-2 text-sm cursor-pointer"
                       >
                         <Checkbox
-                          checked={form.setores.includes(setor)}
-                          onCheckedChange={() => toggleSetor(setor)}
+                          checked={form.setores.includes(setor as Setor)}
+                          onCheckedChange={() => toggleSetor(setor as Setor)}
                         />
                         {setor}
                       </label>

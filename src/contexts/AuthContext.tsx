@@ -12,6 +12,7 @@ interface AuthContextType {
   perfil: PerfilUsuario | null;
   nome: string | null;
   categoriasPermitidas: string[] | null; // null = all access
+  setoresPermitidos: string[] | null; // null = all access
   signOut: () => Promise<void>;
 }
 
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   perfil: null,
   nome: null,
   categoriasPermitidas: null,
+  setoresPermitidos: null,
   signOut: async () => {},
 });
 
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [nome, setNome] = useState<string | null>(null);
   const [categoriasPermitidas, setCategoriasPermitidas] = useState<string[] | null>(null);
+  const [setoresPermitidos, setSetoresPermitidos] = useState<string[] | null>(null);
 
   async function fetchProfile(userId: string) {
     const { data } = await supabase
@@ -42,15 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setPerfil(data?.perfil ?? null);
     setNome(data?.nome ?? null);
 
-    // For Manutenção users, fetch allowed category IDs
+    // For Manutenção users, fetch allowed category and setor IDs
     if (data?.perfil === "Manutenção") {
-      const { data: cats } = await supabase
-        .from("profile_categorias")
-        .select("categoria_id")
-        .eq("profile_id", userId);
+      const [{ data: cats }, { data: sets }] = await Promise.all([
+        supabase.from("profile_categorias").select("categoria_id").eq("profile_id", userId),
+        supabase.from("profile_setores").select("setor_id").eq("profile_id", userId),
+      ]);
       setCategoriasPermitidas(cats?.map((c) => c.categoria_id) ?? []);
+      setSetoresPermitidos(sets?.map((s) => s.setor_id) ?? []);
     } else {
-      setCategoriasPermitidas(null); // null means full access
+      setCategoriasPermitidas(null);
+      setSetoresPermitidos(null);
     }
   }
 
@@ -64,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setPerfil(null);
           setNome(null);
+          setSetoresPermitidos(null);
           setLoading(false);
         }
       }
@@ -87,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, perfil, nome, categoriasPermitidas, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, perfil, nome, categoriasPermitidas, setoresPermitidos, signOut }}>
       {children}
     </AuthContext.Provider>
   );

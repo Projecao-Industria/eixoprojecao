@@ -55,7 +55,7 @@ function isInCurrentWeek(date: Date): boolean {
 
 export default function CalendarioManutencoes() {
   const navigate = useNavigate();
-  const { categoriasPermitidas } = useAuth();
+  const { categoriasPermitidas, setoresPermitidos } = useAuth();
   const [bemId, setBemId] = useState("");
   const [agendas, setAgendas] = useState<Agenda[]>([]);
   const [bens, setBens] = useState<BemSimple[]>([]);
@@ -76,11 +76,14 @@ export default function CalendarioManutencoes() {
       if (categoriasPermitidas) {
         q = q.in("categoria_id", categoriasPermitidas);
       }
+      if (setoresPermitidos) {
+        q = (q as any).in("setor_id", setoresPermitidos);
+      }
       const { data } = await q;
       setBens((data || []).map((b: any) => ({ id: b.id, descricao: b.descricao })));
     }
     fetchBens();
-  }, [categoriasPermitidas]);
+  }, [categoriasPermitidas, setoresPermitidos]);
 
   // Fetch all agendas
   useEffect(() => {

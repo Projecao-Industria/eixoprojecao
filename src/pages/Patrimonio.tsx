@@ -25,7 +25,7 @@ import CurrencyInput from "@/components/CurrencyInput";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
-  const { categoriasPermitidas } = useAuth();
+  const { categoriasPermitidas, setoresPermitidos } = useAuth();
   const [bens, setBens] = useState<Bem[]>([]);
   const [categoriasDB, setCategoriasDB] = useState<{ id: string; nome: string }[]>([]);
   const [setoresDB, setSetoresDB] = useState<{ id: string; nome: string }[]>([]);
@@ -45,6 +45,9 @@ export default function Patrimonio() {
     let bensQuery = supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id");
     if (categoriasPermitidas) {
       bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
+    }
+    if (setoresPermitidos) {
+      bensQuery = bensQuery.in("setor_id", setoresPermitidos);
     }
     const bensRes = await bensQuery;
     if (bensRes.data) {

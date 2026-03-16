@@ -86,7 +86,7 @@ function BemSearchSelect({
 }
 
 export default function ManutencaoPage() {
-  const { categoriasPermitidas } = useAuth();
+  const { categoriasPermitidas, setoresPermitidos } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [manutencoes, setManutencoes] = useState<Manutencao[]>([]);
   const [bensDB, setBensDB] = useState<Bem[]>([]);
@@ -123,6 +123,9 @@ export default function ManutencaoPage() {
     let bensQuery = supabase.from("bens").select("id, descricao, categoria_id").order("id");
     if (categoriasPermitidas) {
       bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
+    }
+    if (setoresPermitidos) {
+      bensQuery = (bensQuery as any).in("setor_id", setoresPermitidos);
     }
     const bensRes = await bensQuery;
 
