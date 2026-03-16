@@ -4,12 +4,12 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const allLinks = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, directorOnly: false },
-  { to: "/patrimonio", label: "Patrimônio", icon: Package, directorOnly: false },
-  { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false },
-  { to: "/historico", label: "Histórico", icon: History, directorOnly: false },
-  { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true },
-  { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, directorOnly: false, hideForManutencao: true },
+  { to: "/patrimonio", label: "Patrimônio", icon: Package, directorOnly: false, hideForManutencao: false },
+  { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false, hideForManutencao: false },
+  { to: "/historico", label: "Histórico", icon: History, directorOnly: false, hideForManutencao: false },
+  { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true, hideForManutencao: false },
+  { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true, hideForManutencao: false },
 ];
 
 export default function MobileHeader() {
