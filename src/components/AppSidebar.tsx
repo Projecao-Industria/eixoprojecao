@@ -9,6 +9,7 @@ const allLinks = [
   { to: "/patrimonio", label: "Patrimônio", icon: Package, directorOnly: false, hideForManutencao: false },
   { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false, hideForManutencao: false },
   { to: "/historico", label: "Histórico", icon: History, directorOnly: false, hideForManutencao: false },
+  { to: "/calendario", label: "Calendário", icon: CalendarDays, directorOnly: false, hideForManutencao: false },
   { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true, hideForManutencao: false },
   { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true, hideForManutencao: false },
 ];

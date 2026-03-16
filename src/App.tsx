@@ -68,6 +68,7 @@ const App = () => (
               <Route path="/usuarios" element={<DirectorRoute><Usuarios /></DirectorRoute>} />
               <Route path="/cadastros" element={<DirectorRoute><Cadastros /></DirectorRoute>} />
               <Route path="/historico" element={<HistoricoBem />} />
+              <Route path="/calendario" element={<CalendarioManutencoes />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
