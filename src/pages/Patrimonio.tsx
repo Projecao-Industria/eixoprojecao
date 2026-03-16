@@ -46,6 +46,9 @@ export default function Patrimonio() {
     if (categoriasPermitidas) {
       bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
     }
+    if (setoresPermitidos) {
+      bensQuery = bensQuery.in("setor_id", setoresPermitidos);
+    }
     const bensRes = await bensQuery;
     if (bensRes.data) {
       const mapped: Bem[] = bensRes.data.map((b: any) => ({
