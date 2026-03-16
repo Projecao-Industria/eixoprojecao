@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [nome, setNome] = useState<string | null>(null);
+  const [categoriasPermitidas, setCategoriasPermitidas] = useState<string[] | null>(null);
 
   async function fetchProfile(userId: string) {
     const { data } = await supabase
@@ -40,6 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single();
     setPerfil(data?.perfil ?? null);
     setNome(data?.nome ?? null);
+
+    // For Manutenção users, fetch allowed category IDs
+    if (data?.perfil === "Manutenção") {
+      const { data: cats } = await supabase
+        .from("profile_categorias")
+        .select("categoria_id")
+        .eq("profile_id", userId);
+      setCategoriasPermitidas(cats?.map((c) => c.categoria_id) ?? []);
+    } else {
+      setCategoriasPermitidas(null); // null means full access
+    }
   }
 
   useEffect(() => {
