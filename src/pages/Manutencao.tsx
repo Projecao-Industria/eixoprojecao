@@ -267,7 +267,7 @@ export default function ManutencaoPage() {
             </thead>
             <tbody>
               {filtered.map((m) => {
-                const bem = mockBens.find((b) => b.id === m.bemId);
+                const bem = bensDB.find((b) => b.id === m.bemId);
                 return (
                   <tr
                     key={m.id}
