@@ -72,7 +72,8 @@ export interface Manutencao {
   data: string;
   tipo: string;
   custo: number;
-  responsavel: string;
+  fornecedor: string;
+  nfePedido: string;
   observacoes: string;
   itens: ManutencaoItem[];
 }

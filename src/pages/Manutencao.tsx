@@ -137,7 +137,8 @@ export default function ManutencaoPage() {
         data: m.data || "",
         tipo: m.tipo,
         custo: Number(m.custo),
-        responsavel: m.responsavel,
+        fornecedor: m.fornecedor,
+        nfePedido: m.nfe_pedido || "",
         observacoes: m.observacoes,
         itens: (m.manutencao_itens || []).map((i: any) => ({
           id: i.id,
@@ -156,7 +157,8 @@ export default function ManutencaoPage() {
     data: "",
     tipo: "Preventiva",
     custo: 0,
-    responsavel: "",
+    fornecedor: "",
+    nfePedido: "",
     observacoes: "",
     itens: [],
   };
@@ -171,7 +173,7 @@ export default function ManutencaoPage() {
       m.numero.includes(q) ||
       m.bemId.includes(search) ||
       bem?.descricao.toLowerCase().includes(q) ||
-      m.responsavel.toLowerCase().includes(q)
+      m.fornecedor.toLowerCase().includes(q)
     );
   });
 
@@ -199,7 +201,8 @@ export default function ManutencaoPage() {
       data: form.data,
       tipo: form.tipo as "Preventiva" | "Corretiva",
       custo,
-      responsavel: form.responsavel,
+      fornecedor: form.fornecedor,
+      nfe_pedido: form.nfePedido,
       observacoes: form.observacoes,
     };
 
@@ -265,7 +268,7 @@ export default function ManutencaoPage() {
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nº manutenção, nº bem, descrição ou responsável..."
+            placeholder="Buscar por nº manutenção, nº bem, descrição ou fornecedor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -283,7 +286,7 @@ export default function ManutencaoPage() {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Bem</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Descrição</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Tipo</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Responsável</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Fornecedor</th>
                 <th className="text-right px-4 py-3 font-medium text-muted-foreground">Custo</th>
               </tr>
             </thead>
@@ -314,7 +317,7 @@ export default function ManutencaoPage() {
                         {m.tipo}
                       </span>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">{m.responsavel}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">{m.fornecedor}</td>
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(m.custo)}</td>
                   </tr>
                 );
@@ -378,10 +381,17 @@ export default function ManutencaoPage() {
               </div>
             </div>
             <div>
-              <Label>Responsável</Label>
+              <Label>Fornecedor</Label>
               <Input
-                value={form.responsavel}
-                onChange={(e) => setForm({ ...form, responsavel: e.target.value })}
+                value={form.fornecedor}
+                onChange={(e) => setForm({ ...form, fornecedor: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>NFe ou Número Pedido</Label>
+              <Input
+                value={form.nfePedido}
+                onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
               />
             </div>
             <div>

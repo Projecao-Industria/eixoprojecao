@@ -36,7 +36,7 @@ interface ManutencaoDB {
   data: string;
   tipo: string;
   custo: number;
-  responsavel: string;
+  fornecedor: string;
 }
 
 export default function HistoricoBem() {
@@ -127,7 +127,7 @@ export default function HistoricoBem() {
           data: m.data,
           tipo: m.tipo,
           custo: m.custo,
-          responsavel: m.responsavel,
+          fornecedor: m.fornecedor,
         }))
       );
 
@@ -311,7 +311,7 @@ export default function HistoricoBem() {
                           <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data</th>
                           <th className="text-left px-4 py-3 font-medium text-muted-foreground">Descrição</th>
                           <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tipo</th>
-                          <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Responsável</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Fornecedor</th>
                           <th className="text-right px-4 py-3 font-medium text-muted-foreground">Custo</th>
                         </tr>
                       </thead>
@@ -326,7 +326,7 @@ export default function HistoricoBem() {
                                 m.tipo === "Preventiva" ? "bg-accent/15 text-accent border-accent/30" : "bg-warning/15 text-warning-foreground border-warning/30"
                               }`}>{m.tipo}</span>
                             </td>
-                            <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">{m.responsavel}</td>
+                            <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">{m.fornecedor}</td>
                             <td className="px-4 py-3 text-right font-medium">{formatCurrency(m.custo)}</td>
                           </tr>
                         ))}
