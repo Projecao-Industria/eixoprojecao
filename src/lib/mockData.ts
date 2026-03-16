@@ -38,6 +38,10 @@ export const SETORES: Setor[] = [
   "Administrativo",
 ];
 
+export type DepreciacaoAnual = 10 | 15 | 20 | 40 | 60 | 80 | 100;
+
+export const DEPRECIACOES: DepreciacaoAnual[] = [10, 15, 20, 40, 60, 80, 100];
+
 export interface Bem {
   id: string;
   descricao: string;
@@ -47,8 +51,10 @@ export interface Bem {
   dataCompra: string;
   nfe: string;
   valorCompra: number;
+  depreciacaoAnual: DepreciacaoAnual;
   valorResidual: number;
   dataBaixa: string | null;
+  motivoBaixa: string;
   status: StatusBem;
 }
 
