@@ -201,7 +201,8 @@ export default function ManutencaoPage() {
       data: form.data,
       tipo: form.tipo as "Preventiva" | "Corretiva",
       custo,
-      responsavel: form.responsavel,
+      fornecedor: form.fornecedor,
+      nfe_pedido: form.nfePedido,
       observacoes: form.observacoes,
     };
 
