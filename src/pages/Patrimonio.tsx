@@ -114,43 +114,56 @@ export default function Patrimonio() {
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
+    const catObj = categoriasDB.find((c) => c.nome === form.categoria);
+    const setObj = setoresDB.find((s) => s.nome === form.setor);
+    if (!catObj || !setObj) return;
+
+    const dbRow = {
+      descricao: form.descricao,
+      categoria_id: catObj.id,
+      setor_id: setObj.id,
+      usuario: form.usuario,
+      data_compra: form.dataCompra,
+      nfe: form.nfe,
+      valor_compra: form.valorCompra,
+      depreciacao_anual: form.depreciacaoAnual,
+      motivo_baixa: form.motivoBaixa,
+      status: form.status,
+      data_baixa: form.dataBaixa || null,
+    };
+
     if (editingBem) {
-      setBens((prev) =>
-        prev.map((b) => (b.id === editingBem.id ? { ...form, id: editingBem.id } : b))
-      );
+      await supabase.from("bens").update(dbRow).eq("id", editingBem.id);
     } else {
       const newId = generateNextId(bens);
-      const valorRes = calcularValorResidual(form.valorCompra, form.depreciacaoAnual, form.dataCompra);
-      setBens((prev) => [...prev, { ...form, id: newId, status: "Ativo", valorResidual: valorRes }]);
+      await supabase.from("bens").insert({ ...dbRow, id: newId, status: "Ativo" });
     }
     setDialogOpen(false);
+    fetchAll();
   }
 
-  function handleBaixar() {
+  async function handleBaixar() {
     if (!editingBem) return;
     const hoje = new Date().toISOString().split("T")[0];
-    const updated: Bem = {
-      ...form,
-      id: editingBem.id,
+    await supabase.from("bens").update({
       status: "Baixado",
-      dataBaixa: hoje,
-    };
-    setBens((prev) => prev.map((b) => (b.id === editingBem.id ? updated : b)));
+      data_baixa: hoje,
+      motivo_baixa: form.motivoBaixa,
+    }).eq("id", editingBem.id);
     setDialogOpen(false);
+    fetchAll();
   }
 
-  function handleReverterBaixa() {
+  async function handleReverterBaixa() {
     if (!editingBem) return;
-    const updated: Bem = {
-      ...form,
-      id: editingBem.id,
+    await supabase.from("bens").update({
       status: "Ativo",
-      dataBaixa: null,
-      motivoBaixa: "",
-    };
-    setBens((prev) => prev.map((b) => (b.id === editingBem.id ? updated : b)));
+      data_baixa: null,
+      motivo_baixa: "",
+    }).eq("id", editingBem.id);
     setDialogOpen(false);
+    fetchAll();
   }
 
   const isViewMode = editingBem && !isEditing;
