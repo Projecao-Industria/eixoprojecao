@@ -105,7 +105,31 @@ export default function UsuariosPage() {
     }
   }
 
-  function toggleCategoria(cat: Categoria) {
+  async function handleDelete() {
+    if (!editing) return;
+    if (!confirm(`Tem certeza que deseja excluir ${editing.nome}?`)) return;
+
+    setDeleting(true);
+    try {
+      const res = await supabase.functions.invoke("delete-user", {
+        body: { userId: editing.id },
+      });
+
+      if (res.error || res.data?.error) {
+        toast({ title: res.data?.error || "Erro ao excluir usuário", variant: "destructive" });
+        return;
+      }
+
+      setUsuarios((prev) => prev.filter((u) => u.id !== editing.id));
+      toast({ title: "Usuário excluído com sucesso" });
+      setDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: err.message || "Erro ao excluir", variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  }
+
     setForm((prev) => ({
       ...prev,
       categorias: prev.categorias.includes(cat)
