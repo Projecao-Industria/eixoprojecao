@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
-  mockBens,
   formatCurrency,
   formatDate,
   generateNextId,
@@ -14,6 +13,7 @@ import {
   type DepreciacaoAnual,
 } from "@/lib/mockData";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,21 +24,42 @@ import CurrencyInput from "@/components/CurrencyInput";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
-  const [bens, setBens] = useState<Bem[]>(mockBens);
-  const [categoriasDB, setCategoriasDB] = useState<string[]>([]);
-  const [setoresDB, setSetoresDB] = useState<string[]>([]);
+  const [bens, setBens] = useState<Bem[]>([]);
+  const [categoriasDB, setCategoriasDB] = useState<{ id: string; nome: string }[]>([]);
+  const [setoresDB, setSetoresDB] = useState<{ id: string; nome: string }[]>([]);
 
   useEffect(() => {
-    async function fetchLists() {
-      const [catRes, setRes] = await Promise.all([
-        supabase.from("categorias").select("nome").order("nome"),
-        supabase.from("setores").select("nome").order("nome"),
-      ]);
-      if (catRes.data) setCategoriasDB(catRes.data.map((c: any) => c.nome));
-      if (setRes.data) setSetoresDB(setRes.data.map((s: any) => s.nome));
-    }
-    fetchLists();
+    fetchAll();
   }, []);
+
+  async function fetchAll() {
+    const [catRes, setRes, bensRes] = await Promise.all([
+      supabase.from("categorias").select("id, nome").order("nome"),
+      supabase.from("setores").select("id, nome").order("nome"),
+      supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id"),
+    ]);
+    if (catRes.data) setCategoriasDB(catRes.data);
+    if (setRes.data) setSetoresDB(setRes.data);
+    if (bensRes.data) {
+      const mapped: Bem[] = bensRes.data.map((b: any) => ({
+        id: b.id,
+        descricao: b.descricao,
+        categoria: b.categorias?.nome || "",
+        setor: b.setores?.nome || "",
+        usuario: b.usuario,
+        dataCompra: b.data_compra || "",
+        nfe: b.nfe,
+        valorCompra: Number(b.valor_compra),
+        depreciacaoAnual: b.depreciacao_anual as DepreciacaoAnual,
+        valorResidual: 0,
+        dataBaixa: b.data_baixa || null,
+        motivoBaixa: b.motivo_baixa || "",
+        status: b.status as "Ativo" | "Baixado",
+      }));
+      setBens(mapped);
+    }
+  }
+
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState<string>("all");
   const [filterSetor, setFilterSetor] = useState<string>("all");
@@ -50,8 +71,8 @@ export default function Patrimonio() {
 
   const emptyBem: Omit<Bem, "id"> = {
     descricao: "",
-    categoria: "Máquinas",
-    setor: "Corte Marcenaria",
+    categoria: "" as Categoria,
+    setor: "" as Setor,
     usuario: "",
     dataCompra: "",
     nfe: "",
@@ -93,43 +114,56 @@ export default function Patrimonio() {
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
+    const catObj = categoriasDB.find((c) => c.nome === form.categoria);
+    const setObj = setoresDB.find((s) => s.nome === form.setor);
+    if (!catObj || !setObj) return;
+
+    const dbRow = {
+      descricao: form.descricao,
+      categoria_id: catObj.id,
+      setor_id: setObj.id,
+      usuario: form.usuario,
+      data_compra: form.dataCompra,
+      nfe: form.nfe,
+      valor_compra: form.valorCompra,
+      depreciacao_anual: form.depreciacaoAnual,
+      motivo_baixa: form.motivoBaixa,
+      status: form.status,
+      data_baixa: form.dataBaixa || null,
+    };
+
     if (editingBem) {
-      setBens((prev) =>
-        prev.map((b) => (b.id === editingBem.id ? { ...form, id: editingBem.id } : b))
-      );
+      await supabase.from("bens").update(dbRow).eq("id", editingBem.id);
     } else {
       const newId = generateNextId(bens);
-      const valorRes = calcularValorResidual(form.valorCompra, form.depreciacaoAnual, form.dataCompra);
-      setBens((prev) => [...prev, { ...form, id: newId, status: "Ativo", valorResidual: valorRes }]);
+      await supabase.from("bens").insert({ ...dbRow, id: newId, status: "Ativo" });
     }
     setDialogOpen(false);
+    fetchAll();
   }
 
-  function handleBaixar() {
+  async function handleBaixar() {
     if (!editingBem) return;
     const hoje = new Date().toISOString().split("T")[0];
-    const updated: Bem = {
-      ...form,
-      id: editingBem.id,
+    await supabase.from("bens").update({
       status: "Baixado",
-      dataBaixa: hoje,
-    };
-    setBens((prev) => prev.map((b) => (b.id === editingBem.id ? updated : b)));
+      data_baixa: hoje,
+      motivo_baixa: form.motivoBaixa,
+    }).eq("id", editingBem.id);
     setDialogOpen(false);
+    fetchAll();
   }
 
-  function handleReverterBaixa() {
+  async function handleReverterBaixa() {
     if (!editingBem) return;
-    const updated: Bem = {
-      ...form,
-      id: editingBem.id,
+    await supabase.from("bens").update({
       status: "Ativo",
-      dataBaixa: null,
-      motivoBaixa: "",
-    };
-    setBens((prev) => prev.map((b) => (b.id === editingBem.id ? updated : b)));
+      data_baixa: null,
+      motivo_baixa: "",
+    }).eq("id", editingBem.id);
     setDialogOpen(false);
+    fetchAll();
   }
 
   const isViewMode = editingBem && !isEditing;
@@ -169,7 +203,7 @@ export default function Patrimonio() {
             <SelectContent>
               <SelectItem value="all">Todas Categorias</SelectItem>
               {categoriasDB.map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
+                <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -180,7 +214,7 @@ export default function Patrimonio() {
             <SelectContent>
               <SelectItem value="all">Todos Setores</SelectItem>
               {setoresDB.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+                <SelectItem key={s.id} value={s.nome}>{s.nome}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -360,7 +394,7 @@ export default function Patrimonio() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {categoriasDB.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -375,7 +409,7 @@ export default function Patrimonio() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {setoresDB.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                      <SelectItem key={s.id} value={s.nome}>{s.nome}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

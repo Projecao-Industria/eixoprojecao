@@ -1,8 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Trash2 } from "lucide-react";
 import {
-  mockManutencoes,
-  mockBens,
   formatCurrency,
   formatDate,
   generateNextManutencaoNumero,
@@ -10,6 +8,7 @@ import {
   type ManutencaoItem,
   type Bem,
 } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,10 +84,48 @@ function BemSearchSelect({
 }
 
 export default function ManutencaoPage() {
-  const [manutencoes, setManutencoes] = useState<Manutencao[]>(mockManutencoes);
+  const [manutencoes, setManutencoes] = useState<Manutencao[]>([]);
+  const [bensDB, setBensDB] = useState<Bem[]>([]);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Manutencao | null>(null);
+
+  useEffect(() => {
+    fetchAll();
+  }, []);
+
+  async function fetchAll() {
+    const [manRes, bensRes] = await Promise.all([
+      supabase.from("manutencoes").select("*, manutencao_itens(*)").order("numero"),
+      supabase.from("bens").select("id, descricao").order("id"),
+    ]);
+    if (bensRes.data) {
+      setBensDB(bensRes.data.map((b: any) => ({
+        id: b.id, descricao: b.descricao, categoria: "" as any, setor: "" as any,
+        usuario: "", dataCompra: "", nfe: "", valorCompra: 0, depreciacaoAnual: 10,
+        valorResidual: 0, dataBaixa: null, motivoBaixa: "", status: "Ativo" as any,
+      })));
+    }
+    if (manRes.data) {
+      const mapped: Manutencao[] = manRes.data.map((m: any) => ({
+        id: m.id,
+        numero: m.numero,
+        bemId: m.bem_id,
+        descricao: m.descricao,
+        data: m.data || "",
+        tipo: m.tipo,
+        custo: Number(m.custo),
+        responsavel: m.responsavel,
+        observacoes: m.observacoes,
+        itens: (m.manutencao_itens || []).map((i: any) => ({
+          id: i.id,
+          descricao: i.descricao,
+          custo: Number(i.custo),
+        })),
+      }));
+      setManutencoes(mapped);
+    }
+  }
 
   const emptyForm: Omit<Manutencao, "id"> = {
     numero: "",
@@ -105,7 +142,7 @@ export default function ManutencaoPage() {
   const [form, setForm] = useState<Omit<Manutencao, "id">>(emptyForm);
 
   const filtered = manutencoes.filter((m) => {
-    const bem = mockBens.find((b) => b.id === m.bemId);
+    const bem = bensDB.find((b) => b.id === m.bemId);
     const q = search.toLowerCase();
     return (
       m.descricao.toLowerCase().includes(q) ||
@@ -129,19 +166,40 @@ export default function ManutencaoPage() {
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     const totalItens = form.itens.reduce((s, i) => s + i.custo, 0);
-    const finalForm = { ...form, custo: totalItens > 0 ? totalItens : form.custo };
+    const custo = totalItens > 0 ? totalItens : form.custo;
+
+    const dbRow = {
+      numero: form.numero,
+      bem_id: form.bemId,
+      descricao: form.descricao,
+      data: form.data,
+      tipo: form.tipo as "Preventiva" | "Corretiva",
+      custo,
+      responsavel: form.responsavel,
+      observacoes: form.observacoes,
+    };
 
     if (editing) {
-      setManutencoes((prev) =>
-        prev.map((m) => (m.id === editing.id ? { ...finalForm, id: editing.id } : m))
-      );
+      await supabase.from("manutencoes").update(dbRow).eq("id", editing.id);
+      // Replace items
+      await supabase.from("manutencao_itens").delete().eq("manutencao_id", editing.id);
+      if (form.itens.length > 0) {
+        await supabase.from("manutencao_itens").insert(
+          form.itens.map((i) => ({ manutencao_id: editing.id, descricao: i.descricao, custo: i.custo }))
+        );
+      }
     } else {
-      const newId = String(manutencoes.length + 1);
-      setManutencoes((prev) => [...prev, { ...finalForm, id: newId }]);
+      const { data: inserted } = await supabase.from("manutencoes").insert(dbRow).select("id").single();
+      if (inserted && form.itens.length > 0) {
+        await supabase.from("manutencao_itens").insert(
+          form.itens.map((i) => ({ manutencao_id: inserted.id, descricao: i.descricao, custo: i.custo }))
+        );
+      }
     }
     setDialogOpen(false);
+    fetchAll();
   }
 
   function addItem() {
@@ -209,7 +267,7 @@ export default function ManutencaoPage() {
             </thead>
             <tbody>
               {filtered.map((m) => {
-                const bem = mockBens.find((b) => b.id === m.bemId);
+                const bem = bensDB.find((b) => b.id === m.bemId);
                 return (
                   <tr
                     key={m.id}
@@ -264,7 +322,7 @@ export default function ManutencaoPage() {
               <BemSearchSelect
                 value={form.bemId}
                 onChange={(v) => setForm({ ...form, bemId: v })}
-                bens={mockBens}
+                bens={bensDB}
               />
             </div>
             <div>
