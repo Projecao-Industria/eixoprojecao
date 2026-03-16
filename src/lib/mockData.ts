@@ -58,8 +58,15 @@ export interface Bem {
   status: StatusBem;
 }
 
+export interface ManutencaoItem {
+  id: string;
+  descricao: string;
+  custo: number;
+}
+
 export interface Manutencao {
   id: string;
+  numero: string;
   bemId: string;
   descricao: string;
   data: string;
@@ -67,6 +74,7 @@ export interface Manutencao {
   custo: number;
   responsavel: string;
   observacoes: string;
+  itens: ManutencaoItem[];
 }
 
 export interface Usuario {
