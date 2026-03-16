@@ -322,7 +322,7 @@ export default function ManutencaoPage() {
               <BemSearchSelect
                 value={form.bemId}
                 onChange={(v) => setForm({ ...form, bemId: v })}
-                bens={mockBens}
+                bens={bensDB}
               />
             </div>
             <div>
