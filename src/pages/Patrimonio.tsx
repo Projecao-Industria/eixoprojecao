@@ -201,7 +201,7 @@ export default function Patrimonio() {
             <SelectContent>
               <SelectItem value="all">Todos Setores</SelectItem>
               {setoresDB.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+                <SelectItem key={s.id} value={s.nome}>{s.nome}</SelectItem>
               ))}
             </SelectContent>
           </Select>
