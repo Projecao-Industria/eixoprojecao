@@ -1,7 +1,7 @@
 import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, LogOut } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 const links = [
