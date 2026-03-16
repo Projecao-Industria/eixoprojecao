@@ -87,32 +87,7 @@ export interface Usuario {
 }
 
 // Mock data
-export const mockUsuarios: Usuario[] = [
-  {
-    id: "1",
-    nome: "Carlos Silva",
-    email: "carlos@empresa.com",
-    perfil: "Diretor",
-    categorias: [...CATEGORIAS],
-    setores: [...SETORES],
-  },
-  {
-    id: "2",
-    nome: "Matheus Oliveira",
-    email: "matheus@empresa.com",
-    perfil: "Gestor",
-    categorias: [...CATEGORIAS],
-    setores: [...SETORES],
-  },
-  {
-    id: "3",
-    nome: "Ivomar Santos",
-    email: "ivomar@empresa.com",
-    perfil: "Manutenção",
-    categorias: ["Veículos"],
-    setores: ["Montagem Externa"],
-  },
-];
+export const mockUsuarios: Usuario[] = [];
 
 export function calcularValorResidual(valorCompra: number, depreciacaoAnual: DepreciacaoAnual, dataCompra: string): number {
   if (!dataCompra || !valorCompra) return 0;
@@ -128,143 +103,18 @@ export function generateNextManutencaoNumero(manutencoes: Manutencao[]): string 
   return String(maxNum + 1).padStart(5, "0");
 }
 
-export const mockBens: Bem[] = [
-  {
-    id: "00001",
-    descricao: "Serra Circular Makita",
-    categoria: "Máquinas",
-    setor: "Corte Marcenaria",
-    usuario: "João",
-    dataCompra: "2023-03-15",
-    nfe: "12345",
-    valorCompra: 4500,
-    depreciacaoAnual: 10,
-    valorResidual: 0,
-    dataBaixa: null,
-    motivoBaixa: "",
-    status: "Ativo",
-  },
-  {
-    id: "00002",
-    descricao: "Notebook Dell Latitude",
-    categoria: "Informática",
-    setor: "Administrativo",
-    usuario: "Maria",
-    dataCompra: "2023-06-20",
-    nfe: "67890",
-    valorCompra: 6200,
-    depreciacaoAnual: 20,
-    valorResidual: 0,
-    dataBaixa: null,
-    motivoBaixa: "",
-    status: "Ativo",
-  },
-  {
-    id: "00003",
-    descricao: "Fiat Fiorino 2020",
-    categoria: "Veículos",
-    setor: "Montagem Externa",
-    usuario: "Pedro",
-    dataCompra: "2020-01-10",
-    nfe: "11111",
-    valorCompra: 52000,
-    depreciacaoAnual: 20,
-    valorResidual: 0,
-    dataBaixa: null,
-    motivoBaixa: "",
-    status: "Ativo",
-  },
-  {
-    id: "00004",
-    descricao: "Mesa de Escritório",
-    categoria: "Móveis e Utensílios",
-    setor: "Administrativo",
-    usuario: "Ana",
-    dataCompra: "2022-11-05",
-    nfe: "22222",
-    valorCompra: 1800,
-    depreciacaoAnual: 10,
-    valorResidual: 0,
-    dataBaixa: "2025-01-15",
-    motivoBaixa: "Bem danificado",
-    status: "Baixado",
-  },
-  {
-    id: "00005",
-    descricao: "Máquina de Solda MIG",
-    categoria: "Máquinas",
-    setor: "Solda",
-    usuario: "Roberto",
-    dataCompra: "2021-07-22",
-    nfe: "33333",
-    valorCompra: 8500,
-    depreciacaoAnual: 10,
-    valorResidual: 0,
-    dataBaixa: null,
-    motivoBaixa: "",
-    status: "Ativo",
-  },
-];
+export const mockBens: Bem[] = [];
 
-export const mockManutencoes: Manutencao[] = [
-  {
-    id: "1",
-    numero: "00001",
-    bemId: "00001",
-    descricao: "Troca de disco de corte",
-    data: "2024-02-10",
-    tipo: "Preventiva",
-    custo: 150,
-    responsavel: "Ivomar",
-    observacoes: "Disco desgastado, substituído por novo",
-    itens: [{ id: "1", descricao: "Disco de corte diamantado", custo: 150 }],
-  },
-  {
-    id: "2",
-    numero: "00002",
-    bemId: "00003",
-    descricao: "Revisão completa 30.000km",
-    data: "2024-01-20",
-    tipo: "Preventiva",
-    custo: 1200,
-    responsavel: "Ivomar",
-    observacoes: "Troca de óleo, filtros e pastilhas de freio",
-    itens: [
-      { id: "1", descricao: "Troca de óleo", custo: 300 },
-      { id: "2", descricao: "Filtros", custo: 400 },
-      { id: "3", descricao: "Pastilhas de freio", custo: 500 },
-    ],
-  },
-  {
-    id: "3",
-    numero: "00003",
-    bemId: "00005",
-    descricao: "Reparo no alimentador de arame",
-    data: "2024-03-05",
-    tipo: "Corretiva",
-    custo: 450,
-    responsavel: "Carlos",
-    observacoes: "Peça importada, prazo de 5 dias",
-    itens: [{ id: "1", descricao: "Alimentador de arame", custo: 450 }],
-  },
-  {
-    id: "4",
-    numero: "00004",
-    bemId: "00002",
-    descricao: "Formatação e upgrade de RAM",
-    data: "2024-04-12",
-    tipo: "Corretiva",
-    custo: 350,
-    responsavel: "TI",
-    observacoes: "Upgrade de 8GB para 16GB",
-    itens: [
-      { id: "1", descricao: "Memória RAM 8GB", custo: 200 },
-      { id: "2", descricao: "Serviço de formatação", custo: 150 },
-    ],
-  },
-];
+export const mockManutencoes: Manutencao[] = [];
 
-export const currentUser = mockUsuarios[0];
+export const currentUser: Usuario = {
+  id: "",
+  nome: "Usuário",
+  email: "",
+  perfil: "Diretor",
+  categorias: [...CATEGORIAS],
+  setores: [...SETORES],
+};
 
 export function formatCurrency(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
