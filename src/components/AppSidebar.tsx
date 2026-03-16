@@ -15,6 +15,7 @@ const links = [
 
 export default function AppSidebar() {
   const location = useLocation();
+  const { signOut, user } = useAuth();
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground min-h-screen">
