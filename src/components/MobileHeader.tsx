@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Menu, X, LayoutDashboard, Package, Wrench, Users } from "lucide-react";
+import { Menu, X, LayoutDashboard, Package, Wrench, Users, Settings, History } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const links = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
   { to: "/patrimonio", label: "Patrimônio", icon: Package },
   { to: "/manutencao", label: "Manutenção", icon: Wrench },
+  { to: "/historico", label: "Histórico", icon: History },
   { to: "/usuarios", label: "Usuários", icon: Users },
+  { to: "/cadastros", label: "Cadastros", icon: Settings },
 ];
 
 export default function MobileHeader() {
