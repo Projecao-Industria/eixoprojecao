@@ -114,6 +114,20 @@ export const mockUsuarios: Usuario[] = [
   },
 ];
 
+export function calcularValorResidual(valorCompra: number, depreciacaoAnual: DepreciacaoAnual, dataCompra: string): number {
+  if (!dataCompra || !valorCompra) return 0;
+  const compra = new Date(dataCompra + "T00:00:00");
+  const hoje = new Date();
+  const anosDecorridos = (hoje.getTime() - compra.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+  const fator = Math.max(0, 1 - (depreciacaoAnual / 100) * anosDecorridos);
+  return Math.max(0, Math.round(valorCompra * fator * 100) / 100);
+}
+
+export function generateNextManutencaoNumero(manutencoes: Manutencao[]): string {
+  const maxNum = manutencoes.reduce((max, m) => Math.max(max, parseInt(m.numero || "0")), 0);
+  return String(maxNum + 1).padStart(5, "0");
+}
+
 export const mockBens: Bem[] = [
   {
     id: "00001",
@@ -124,8 +138,10 @@ export const mockBens: Bem[] = [
     dataCompra: "2023-03-15",
     nfe: "12345",
     valorCompra: 4500,
-    valorResidual: 900,
+    depreciacaoAnual: 10,
+    valorResidual: 0,
     dataBaixa: null,
+    motivoBaixa: "",
     status: "Ativo",
   },
   {
@@ -137,8 +153,10 @@ export const mockBens: Bem[] = [
     dataCompra: "2023-06-20",
     nfe: "67890",
     valorCompra: 6200,
-    valorResidual: 1200,
+    depreciacaoAnual: 20,
+    valorResidual: 0,
     dataBaixa: null,
+    motivoBaixa: "",
     status: "Ativo",
   },
   {
@@ -150,8 +168,10 @@ export const mockBens: Bem[] = [
     dataCompra: "2020-01-10",
     nfe: "11111",
     valorCompra: 52000,
-    valorResidual: 25000,
+    depreciacaoAnual: 20,
+    valorResidual: 0,
     dataBaixa: null,
+    motivoBaixa: "",
     status: "Ativo",
   },
   {
@@ -163,8 +183,10 @@ export const mockBens: Bem[] = [
     dataCompra: "2022-11-05",
     nfe: "22222",
     valorCompra: 1800,
-    valorResidual: 300,
+    depreciacaoAnual: 10,
+    valorResidual: 0,
     dataBaixa: "2025-01-15",
+    motivoBaixa: "Bem danificado",
     status: "Baixado",
   },
   {
@@ -176,8 +198,10 @@ export const mockBens: Bem[] = [
     dataCompra: "2021-07-22",
     nfe: "33333",
     valorCompra: 8500,
-    valorResidual: 2000,
+    depreciacaoAnual: 10,
+    valorResidual: 0,
     dataBaixa: null,
+    motivoBaixa: "",
     status: "Ativo",
   },
 ];
