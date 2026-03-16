@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [nome, setNome] = useState<string | null>(null);
   const [categoriasPermitidas, setCategoriasPermitidas] = useState<string[] | null>(null);
+  const [setoresPermitidos, setSetoresPermitidos] = useState<string[] | null>(null);
 
   async function fetchProfile(userId: string) {
     const { data } = await supabase
