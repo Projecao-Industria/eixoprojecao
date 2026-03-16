@@ -20,7 +20,7 @@ export default function AppSidebar() {
     <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground min-h-screen">
       <div className="p-6 border-b border-sidebar-border">
         <h1 className="font-display text-lg font-bold text-sidebar-primary-foreground tracking-tight">
-          Imobilizado<span className="text-sidebar-primary">+</span>
+          Eixo<span className="text-sidebar-primary">.</span>
         </h1>
         <p className="text-xs text-sidebar-foreground/60 mt-1">Patrimônio & Manutenção</p>
       </div>

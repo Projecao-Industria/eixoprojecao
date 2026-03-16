@@ -19,7 +19,7 @@ export default function MobileHeader() {
     <div className="md:hidden">
       <header className="flex items-center justify-between px-4 py-3 bg-card border-b border-border">
         <h1 className="font-display text-lg font-bold">
-          Imobilizado<span className="text-primary">+</span>
+          Eixo<span className="text-primary">.</span>
         </h1>
         <button onClick={() => setOpen(!open)} className="p-2 rounded-lg hover:bg-muted">
           {open ? <X size={20} /> : <Menu size={20} />}
