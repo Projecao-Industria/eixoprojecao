@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, LayoutDashboard, Package, Wrench, Users, Settings, History } from "lucide-react";
+import { Menu, X, LayoutDashboard, Package, Wrench, Users, Settings, History, CalendarDays } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
