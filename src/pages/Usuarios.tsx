@@ -59,6 +59,8 @@ export default function UsuariosPage() {
   function openEdit(u: Usuario) {
     setEditing(u);
     setForm({ ...u });
+    setPassword("");
+    setShowPassword(false);
     setDialogOpen(true);
   }
 
