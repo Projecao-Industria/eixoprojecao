@@ -20,6 +20,7 @@ export default function HistoricoBem() {
   const [searchParams] = useSearchParams();
   const [bemId, setBemId] = useState(searchParams.get("bem") || "");
   const [extraFields, setExtraFields] = useState<Record<string, string>>({});
+  const [editingExtras, setEditingExtras] = useState(false);
 
   const bem = useMemo(() => mockBens.find((b) => b.id === bemId), [bemId]);
   const manutencoes = useMemo(
