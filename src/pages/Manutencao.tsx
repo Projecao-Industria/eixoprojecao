@@ -317,7 +317,7 @@ export default function ManutencaoPage() {
                         {m.tipo}
                       </span>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">{m.responsavel}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">{m.fornecedor}</td>
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(m.custo)}</td>
                   </tr>
                 );
