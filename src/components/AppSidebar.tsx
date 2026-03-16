@@ -1,7 +1,7 @@
 import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, LogOut } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 const links = [
@@ -15,12 +15,13 @@ const links = [
 
 export default function AppSidebar() {
   const location = useLocation();
+  const { signOut, user } = useAuth();
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground min-h-screen">
       <div className="p-6 border-b border-sidebar-border">
         <h1 className="font-display text-lg font-bold text-sidebar-primary-foreground tracking-tight">
-          Imobilizado<span className="text-sidebar-primary">+</span>
+          Eixo<span className="text-sidebar-primary">.</span>
         </h1>
         <p className="text-xs text-sidebar-foreground/60 mt-1">Patrimônio & Manutenção</p>
       </div>
@@ -51,15 +52,14 @@ export default function AppSidebar() {
             <User size={14} className="text-sidebar-primary-foreground" />
           </div>
           <div>
-            <p className="text-sm font-medium text-sidebar-foreground">{currentUser.nome}</p>
+            <p className="text-sm font-medium text-sidebar-foreground">{user?.user_metadata?.nome || currentUser.nome}</p>
             <p className="text-xs text-sidebar-foreground/50">{currentUser.perfil}</p>
           </div>
         </div>
         <button
           onClick={async () => {
-            await supabase.auth.signOut();
+            await signOut();
             toast({ title: "Sessão encerrada" });
-            window.location.href = "/";
           }}
           className="flex items-center gap-3 px-3 py-2 mt-1 w-full rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
         >
