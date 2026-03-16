@@ -364,8 +364,8 @@ export default function UsuariosPage() {
                   setForm({
                     ...form,
                     perfil,
-                    categorias: perfil !== "Manutenção" ? [...CATEGORIAS] : form.categorias,
-                    setores: perfil !== "Manutenção" ? [...SETORES] : form.setores,
+                    categorias: perfil !== "Manutenção" ? [...categoriasDB] as Categoria[] : form.categorias,
+                    setores: perfil !== "Manutenção" ? [...setoresDB] as Setor[] : form.setores,
                   });
                 }}
               >
