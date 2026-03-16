@@ -8,7 +8,7 @@ export default function AppLayout() {
       <AppSidebar />
       <div className="flex-1 flex flex-col">
         <MobileHeader />
-        <main className="flex-1 p-4 md:p-8 max-w-6xl w-full">
+        <main className="flex-1 p-4 md:p-8 w-full">
           <Outlet />
         </main>
       </div>
