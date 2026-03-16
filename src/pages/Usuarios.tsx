@@ -35,16 +35,32 @@ export default function UsuariosPage() {
 
   useEffect(() => {
     async function fetchUsuarios() {
-      const { data: profiles } = await supabase.from("profiles").select("*");
+      const [{ data: profiles }, { data: profCats }, { data: profSets }, { data: categoriasDb }, { data: setoresDb }] = await Promise.all([
+        supabase.from("profiles").select("*"),
+        supabase.from("profile_categorias").select("profile_id, categoria_id, categorias(nome)"),
+        supabase.from("profile_setores").select("profile_id, setor_id, setores(nome)"),
+        supabase.from("categorias").select("id, nome"),
+        supabase.from("setores").select("id, nome"),
+      ]);
       if (profiles) {
-        const mapped: Usuario[] = profiles.map((p: any) => ({
-          id: p.id,
-          nome: p.nome,
-          email: p.email,
-          perfil: p.perfil as PerfilUsuario,
-          categorias: [],
-          setores: [],
-        }));
+        const mapped: Usuario[] = profiles.map((p: any) => {
+          const cats = (profCats || [])
+            .filter((pc: any) => pc.profile_id === p.id)
+            .map((pc: any) => pc.categorias?.nome)
+            .filter(Boolean) as Categoria[];
+          const sets = (profSets || [])
+            .filter((ps: any) => ps.profile_id === p.id)
+            .map((ps: any) => ps.setores?.nome)
+            .filter(Boolean) as Setor[];
+          return {
+            id: p.id,
+            nome: p.nome,
+            email: p.email,
+            perfil: p.perfil as PerfilUsuario,
+            categorias: cats,
+            setores: sets,
+          };
+        });
         setUsuarios(mapped);
       }
     }
