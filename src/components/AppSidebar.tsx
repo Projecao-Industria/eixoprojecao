@@ -52,7 +52,7 @@ export default function AppSidebar() {
             <User size={14} className="text-sidebar-primary-foreground" />
           </div>
           <div>
-            <p className="text-sm font-medium text-sidebar-foreground">{currentUser.nome}</p>
+            <p className="text-sm font-medium text-sidebar-foreground">{user?.user_metadata?.nome || currentUser.nome}</p>
             <p className="text-xs text-sidebar-foreground/50">{currentUser.perfil}</p>
           </div>
         </div>
