@@ -85,10 +85,51 @@ export default function UsuariosPage() {
 
   async function handleSave() {
     if (editing) {
-      setUsuarios((prev) =>
-        prev.map((u) => (u.id === editing.id ? { ...form, id: editing.id } : u))
-      );
-      setDialogOpen(false);
+      setSaving(true);
+      try {
+        // Update profile
+        await supabase.from("profiles").update({ nome: form.nome, perfil: form.perfil }).eq("id", editing.id);
+
+        // Update categorias
+        await supabase.from("profile_categorias").delete().eq("profile_id", editing.id);
+        const { data: categoriasDb } = await supabase.from("categorias").select("id, nome");
+        if (form.categorias.length > 0 && categoriasDb) {
+          const catRows = form.categorias
+            .map((catNome) => {
+              const found = categoriasDb.find((c) => c.nome === catNome);
+              return found ? { profile_id: editing.id, categoria_id: found.id } : null;
+            })
+            .filter(Boolean);
+          if (catRows.length > 0) {
+            await supabase.from("profile_categorias").insert(catRows as any);
+          }
+        }
+
+        // Update setores
+        await supabase.from("profile_setores").delete().eq("profile_id", editing.id);
+        const { data: setoresDb } = await supabase.from("setores").select("id, nome");
+        if (form.setores.length > 0 && setoresDb) {
+          const setRows = form.setores
+            .map((setNome) => {
+              const found = setoresDb.find((s) => s.nome === setNome);
+              return found ? { profile_id: editing.id, setor_id: found.id } : null;
+            })
+            .filter(Boolean);
+          if (setRows.length > 0) {
+            await supabase.from("profile_setores").insert(setRows as any);
+          }
+        }
+
+        setUsuarios((prev) =>
+          prev.map((u) => (u.id === editing.id ? { ...form, id: editing.id } : u))
+        );
+        toast({ title: "Usuário atualizado com sucesso" });
+        setDialogOpen(false);
+      } catch (err: any) {
+        toast({ title: err.message || "Erro ao atualizar", variant: "destructive" });
+      } finally {
+        setSaving(false);
+      }
       return;
     }
 
