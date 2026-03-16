@@ -31,7 +31,25 @@ const perfilColors: Record<PerfilUsuario, string> = {
 };
 
 export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(mockUsuarios);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+
+  useEffect(() => {
+    async function fetchUsuarios() {
+      const { data: profiles } = await supabase.from("profiles").select("*");
+      if (profiles) {
+        const mapped: Usuario[] = profiles.map((p: any) => ({
+          id: p.id,
+          nome: p.nome,
+          email: p.email,
+          perfil: p.perfil as PerfilUsuario,
+          categorias: [],
+          setores: [],
+        }));
+        setUsuarios(mapped);
+      }
+    }
+    fetchUsuarios();
+  }, []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Usuario | null>(null);
   const [password, setPassword] = useState("");
