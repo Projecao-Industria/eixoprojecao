@@ -11,6 +11,7 @@ import Manutencao from "./pages/Manutencao";
 import Usuarios from "./pages/Usuarios";
 import Cadastros from "./pages/Cadastros";
 import HistoricoBem from "./pages/HistoricoBem";
+import CalendarioManutencoes from "./pages/CalendarioManutencoes";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/usuarios" element={<DirectorRoute><Usuarios /></DirectorRoute>} />
               <Route path="/cadastros" element={<DirectorRoute><Cadastros /></DirectorRoute>} />
               <Route path="/historico" element={<HistoricoBem />} />
+              <Route path="/calendario" element={<CalendarioManutencoes />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
