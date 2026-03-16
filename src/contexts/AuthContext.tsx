@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           fetchProfile(session.user.id);
         } else {
           setPerfil(null);
+          setNome(null);
           setLoading(false);
         }
       }
