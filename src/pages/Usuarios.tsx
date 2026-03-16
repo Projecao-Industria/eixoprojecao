@@ -130,6 +130,7 @@ export default function UsuariosPage() {
     }
   }
 
+  function toggleCategoria(cat: Categoria) {
     setForm((prev) => ({
       ...prev,
       categorias: prev.categorias.includes(cat)
