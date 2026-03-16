@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History } from "lucide-react";
+import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   formatCurrency,
@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -78,6 +79,7 @@ export default function Patrimonio() {
   const [editingBem, setEditingBem] = useState<Bem | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBaixa, setShowBaixa] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const emptyBem: Omit<Bem, "id"> = {
     descricao: "",
@@ -172,6 +174,21 @@ export default function Patrimonio() {
       data_baixa: null,
       motivo_baixa: "",
     }).eq("id", editingBem.id);
+    setDialogOpen(false);
+    fetchAll();
+  }
+
+  async function handleDeleteBem() {
+    if (!editingBem) return;
+    await supabase.from("bem_extras").delete().eq("bem_id", editingBem.id);
+    await supabase.from("manutencao_agenda").delete().eq("bem_id", editingBem.id);
+    const { error } = await supabase.from("bens").delete().eq("id", editingBem.id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Bem excluído com sucesso" });
+    }
+    setDeleteConfirmOpen(false);
     setDialogOpen(false);
     fetchAll();
   }
@@ -331,6 +348,14 @@ export default function Patrimonio() {
               >
                 <History size={14} /> Histórico
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteConfirmOpen(true)}
+              >
+                <Trash2 size={14} /> Excluir
+              </Button>
             </div>
           )}
 
@@ -350,6 +375,14 @@ export default function Patrimonio() {
                 }}
               >
                 <History size={14} /> Histórico
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteConfirmOpen(true)}
+              >
+                <Trash2 size={14} /> Excluir
               </Button>
             </div>
           )}
@@ -501,6 +534,23 @@ export default function Patrimonio() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Bem #{editingBem?.id}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Exclusão de Bem apenas para lançamentos incorretos. Para Baixar um Bem ao fim da vida útil, utilizar botão "Baixar".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteBem} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

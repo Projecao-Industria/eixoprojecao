@@ -12,6 +12,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -93,6 +95,7 @@ export default function ManutencaoPage() {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Manutencao | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     fetchAll().then(() => {
@@ -249,6 +252,20 @@ export default function ManutencaoPage() {
         );
       }
     }
+    setDialogOpen(false);
+    fetchAll();
+  }
+
+  async function handleDeleteManutencao() {
+    if (!editing) return;
+    await supabase.from("manutencao_itens").delete().eq("manutencao_id", editing.id);
+    const { error } = await supabase.from("manutencoes").delete().eq("id", editing.id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Manutenção excluída com sucesso" });
+    }
+    setDeleteConfirmOpen(false);
     setDialogOpen(false);
     fetchAll();
   }
@@ -502,15 +519,45 @@ export default function ManutencaoPage() {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSave}>Salvar</Button>
+            <div className="flex justify-between pt-2">
+              <div>
+                {editing && (
+                  <Button
+                    variant="ghost"
+                    className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                  >
+                    <Trash2 size={14} /> Excluir
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave}>Salvar</Button>
+              </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Manutenção #{editing?.numero}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja mesmo prosseguir com a exclusão desta manutenção? Esta ação não poderá ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteManutencao} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
