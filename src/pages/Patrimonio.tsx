@@ -24,21 +24,42 @@ import CurrencyInput from "@/components/CurrencyInput";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
-  const [bens, setBens] = useState<Bem[]>(mockBens);
-  const [categoriasDB, setCategoriasDB] = useState<string[]>([]);
-  const [setoresDB, setSetoresDB] = useState<string[]>([]);
+  const [bens, setBens] = useState<Bem[]>([]);
+  const [categoriasDB, setCategoriasDB] = useState<{ id: string; nome: string }[]>([]);
+  const [setoresDB, setSetoresDB] = useState<{ id: string; nome: string }[]>([]);
 
   useEffect(() => {
-    async function fetchLists() {
-      const [catRes, setRes] = await Promise.all([
-        supabase.from("categorias").select("nome").order("nome"),
-        supabase.from("setores").select("nome").order("nome"),
-      ]);
-      if (catRes.data) setCategoriasDB(catRes.data.map((c: any) => c.nome));
-      if (setRes.data) setSetoresDB(setRes.data.map((s: any) => s.nome));
-    }
-    fetchLists();
+    fetchAll();
   }, []);
+
+  async function fetchAll() {
+    const [catRes, setRes, bensRes] = await Promise.all([
+      supabase.from("categorias").select("id, nome").order("nome"),
+      supabase.from("setores").select("id, nome").order("nome"),
+      supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id"),
+    ]);
+    if (catRes.data) setCategoriasDB(catRes.data);
+    if (setRes.data) setSetoresDB(setRes.data);
+    if (bensRes.data) {
+      const mapped: Bem[] = bensRes.data.map((b: any) => ({
+        id: b.id,
+        descricao: b.descricao,
+        categoria: b.categorias?.nome || "",
+        setor: b.setores?.nome || "",
+        usuario: b.usuario,
+        dataCompra: b.data_compra || "",
+        nfe: b.nfe,
+        valorCompra: Number(b.valor_compra),
+        depreciacaoAnual: b.depreciacao_anual as DepreciacaoAnual,
+        valorResidual: 0,
+        dataBaixa: b.data_baixa || null,
+        motivoBaixa: b.motivo_baixa || "",
+        status: b.status as "Ativo" | "Baixado",
+      }));
+      setBens(mapped);
+    }
+  }
+
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState<string>("all");
   const [filterSetor, setFilterSetor] = useState<string>("all");
@@ -50,8 +71,8 @@ export default function Patrimonio() {
 
   const emptyBem: Omit<Bem, "id"> = {
     descricao: "",
-    categoria: "Máquinas",
-    setor: "Corte Marcenaria",
+    categoria: "" as Categoria,
+    setor: "" as Setor,
     usuario: "",
     dataCompra: "",
     nfe: "",
