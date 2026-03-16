@@ -11,30 +11,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify the caller is authenticated
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Allow service-role key calls (for bootstrap) or verify authenticated user
-    const token = authHeader.replace("Bearer ", "");
-    if (token !== serviceRoleKey) {
-      const callerClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const { data: { user: caller }, error: callerError } = await callerClient.auth.getUser();
-      if (callerError || !caller) {
-        return new Response(JSON.stringify({ error: "Não autorizado" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Verify the caller is authenticated (skip if no auth header — service-role invocation)
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      if (token !== serviceRoleKey) {
+        const callerClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+          global: { headers: { Authorization: authHeader } },
         });
+        const { data: { user: caller }, error: callerError } = await callerClient.auth.getUser();
+        if (callerError || !caller) {
+          return new Response(JSON.stringify({ error: "Não autorizado" }), {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       }
     }
 
