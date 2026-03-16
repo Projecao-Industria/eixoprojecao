@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, User, Shield, Settings, Wrench, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import {
   mockUsuarios,
   CATEGORIAS,
   SETORES,
