@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Patrimonio from "./pages/Patrimonio";
 import Manutencao from "./pages/Manutencao";
 import Usuarios from "./pages/Usuarios";
+import Cadastros from "./pages/Cadastros";
+import HistoricoBem from "./pages/HistoricoBem";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
             <Route path="/patrimonio" element={<Patrimonio />} />
             <Route path="/manutencao" element={<Manutencao />} />
             <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/cadastros" element={<Cadastros />} />
+            <Route path="/historico" element={<HistoricoBem />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

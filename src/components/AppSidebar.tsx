@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Wrench, Users, User } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, Users, User, Settings, History } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
 
@@ -6,7 +6,9 @@ const links = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
   { to: "/patrimonio", label: "Patrimônio", icon: Package },
   { to: "/manutencao", label: "Manutenção", icon: Wrench },
+  { to: "/historico", label: "Histórico", icon: History },
   { to: "/usuarios", label: "Usuários", icon: Users },
+  { to: "/cadastros", label: "Cadastros", icon: Settings },
 ];
 
 export default function AppSidebar() {

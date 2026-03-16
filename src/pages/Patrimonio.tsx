@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, Filter, Pencil, ArrowDownCircle } from "lucide-react";
+import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   mockBens,
   formatCurrency,
@@ -20,11 +21,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import CurrencyInput from "@/components/CurrencyInput";
 
 export default function Patrimonio() {
+  const navigate = useNavigate();
   const [bens, setBens] = useState<Bem[]>(mockBens);
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState<string>("all");
+  const [filterSetor, setFilterSetor] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBem, setEditingBem] = useState<Bem | null>(null);
@@ -54,8 +58,9 @@ export default function Patrimonio() {
       b.id.includes(search) ||
       b.usuario.toLowerCase().includes(search.toLowerCase());
     const matchCategoria = filterCategoria === "all" || b.categoria === filterCategoria;
+    const matchSetor = filterSetor === "all" || b.setor === filterSetor;
     const matchStatus = filterStatus === "all" || b.status === filterStatus;
-    return matchSearch && matchCategoria && matchStatus;
+    return matchSearch && matchCategoria && matchSetor && matchStatus;
   });
 
   function openNew() {
@@ -101,6 +106,19 @@ export default function Patrimonio() {
     setDialogOpen(false);
   }
 
+  function handleReverterBaixa() {
+    if (!editingBem) return;
+    const updated: Bem = {
+      ...form,
+      id: editingBem.id,
+      status: "Ativo",
+      dataBaixa: null,
+      motivoBaixa: "",
+    };
+    setBens((prev) => prev.map((b) => (b.id === editingBem.id ? updated : b)));
+    setDialogOpen(false);
+  }
+
   const isViewMode = editingBem && !isEditing;
   const isCreating = !editingBem;
 
@@ -139,6 +157,17 @@ export default function Patrimonio() {
               <SelectItem value="all">Todas Categorias</SelectItem>
               {CATEGORIAS.map((c) => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterSetor} onValueChange={setFilterSetor}>
+            <SelectTrigger className="w-full md:w-48">
+              <SelectValue placeholder="Setor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos Setores</SelectItem>
+              {SETORES.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -220,7 +249,7 @@ export default function Patrimonio() {
             </DialogTitle>
           </DialogHeader>
 
-          {/* Action buttons for view mode */}
+          {/* Action buttons for view mode - Ativo */}
           {isViewMode && editingBem?.status === "Ativo" && (
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="gap-1" onClick={() => setIsEditing(true)}>
@@ -233,6 +262,37 @@ export default function Patrimonio() {
                 onClick={() => setShowBaixa(!showBaixa)}
               >
                 <ArrowDownCircle size={14} /> Baixar Bem
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  setDialogOpen(false);
+                  navigate(`/historico?bem=${editingBem.id}`);
+                }}
+              >
+                <History size={14} /> Histórico
+              </Button>
+            </div>
+          )}
+
+          {/* Action buttons for view mode - Baixado */}
+          {isViewMode && editingBem?.status === "Baixado" && (
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="gap-1 text-accent border-accent/30 hover:bg-accent/10" onClick={handleReverterBaixa}>
+                <RotateCcw size={14} /> Reverter Baixa
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  setDialogOpen(false);
+                  navigate(`/historico?bem=${editingBem.id}`);
+                }}
+              >
+                <History size={14} /> Histórico
               </Button>
             </div>
           )}
@@ -355,10 +415,9 @@ export default function Patrimonio() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Valor Compra (R$)</Label>
-                <Input
-                  type="number"
-                  value={form.valorCompra || ""}
-                  onChange={(e) => setForm({ ...form, valorCompra: Number(e.target.value) })}
+                <CurrencyInput
+                  value={form.valorCompra}
+                  onChange={(v) => setForm({ ...form, valorCompra: v })}
                   disabled={isViewMode}
                 />
               </div>
@@ -366,8 +425,7 @@ export default function Patrimonio() {
                 <div>
                   <Label>Valor Residual (R$)</Label>
                   <Input
-                    type="number"
-                    value={calcularValorResidual(form.valorCompra, form.depreciacaoAnual, form.dataCompra) || ""}
+                    value={formatCurrency(calcularValorResidual(form.valorCompra, form.depreciacaoAnual, form.dataCompra))}
                     disabled
                     className="bg-muted/50"
                   />
