@@ -175,10 +175,11 @@ export type Database = {
           custo: number
           data: string
           descricao: string
+          fornecedor: string
           id: string
+          nfe_pedido: string
           numero: string
           observacoes: string
-          responsavel: string
           tipo: Database["public"]["Enums"]["tipo_manutencao"]
         }
         Insert: {
@@ -187,10 +188,11 @@ export type Database = {
           custo?: number
           data: string
           descricao?: string
+          fornecedor?: string
           id?: string
+          nfe_pedido?: string
           numero: string
           observacoes?: string
-          responsavel?: string
           tipo?: Database["public"]["Enums"]["tipo_manutencao"]
         }
         Update: {
@@ -199,10 +201,11 @@ export type Database = {
           custo?: number
           data?: string
           descricao?: string
+          fornecedor?: string
           id?: string
+          nfe_pedido?: string
           numero?: string
           observacoes?: string
-          responsavel?: string
           tipo?: Database["public"]["Enums"]["tipo_manutencao"]
         }
         Relationships: [
