@@ -1,11 +1,14 @@
-import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, Search, Trash2 } from "lucide-react";
 import {
   mockManutencoes,
   mockBens,
   formatCurrency,
   formatDate,
+  generateNextManutencaoNumero,
   type Manutencao,
+  type ManutencaoItem,
+  type Bem,
 } from "@/lib/mockData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -13,6 +16,73 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+function BemSearchSelect({
+  value,
+  onChange,
+  bens,
+}: {
+  value: string;
+  onChange: (bemId: string) => void;
+  bens: Bem[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const selectedBem = bens.find((b) => b.id === value);
+
+  const results = useMemo(() => {
+    if (!query) return bens.slice(0, 10);
+    const q = query.toLowerCase();
+    return bens.filter(
+      (b) =>
+        b.id.includes(q) ||
+        b.descricao.toLowerCase().includes(q)
+    );
+  }, [query, bens]);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full justify-start font-normal">
+          {selectedBem ? `#${selectedBem.id} - ${selectedBem.descricao}` : "Buscar bem..."}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-2" align="start">
+        <div className="relative mb-2">
+          <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por número ou nome..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-7 h-8 text-sm"
+            autoFocus
+          />
+        </div>
+        <div className="max-h-48 overflow-y-auto space-y-0.5">
+          {results.map((b) => (
+            <button
+              key={b.id}
+              onClick={() => {
+                onChange(b.id);
+                setOpen(false);
+                setQuery("");
+              }}
+              className="w-full text-left px-2 py-1.5 rounded text-sm hover:bg-muted/50 transition-colors"
+            >
+              <span className="font-mono text-xs text-muted-foreground">#{b.id}</span>{" "}
+              <span className="font-medium">{b.descricao}</span>
+            </button>
+          ))}
+          {results.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-3">Nenhum bem encontrado.</p>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function ManutencaoPage() {
   const [manutencoes, setManutencoes] = useState<Manutencao[]>(mockManutencoes);
@@ -21,6 +91,7 @@ export default function ManutencaoPage() {
   const [editing, setEditing] = useState<Manutencao | null>(null);
 
   const emptyForm: Omit<Manutencao, "id"> = {
+    numero: "",
     bemId: "",
     descricao: "",
     data: "",
@@ -28,22 +99,27 @@ export default function ManutencaoPage() {
     custo: 0,
     responsavel: "",
     observacoes: "",
+    itens: [],
   };
 
   const [form, setForm] = useState<Omit<Manutencao, "id">>(emptyForm);
 
   const filtered = manutencoes.filter((m) => {
     const bem = mockBens.find((b) => b.id === m.bemId);
+    const q = search.toLowerCase();
     return (
-      m.descricao.toLowerCase().includes(search.toLowerCase()) ||
-      bem?.descricao.toLowerCase().includes(search.toLowerCase()) ||
-      m.responsavel.toLowerCase().includes(search.toLowerCase())
+      m.descricao.toLowerCase().includes(q) ||
+      m.numero.includes(q) ||
+      m.bemId.includes(search) ||
+      bem?.descricao.toLowerCase().includes(q) ||
+      m.responsavel.toLowerCase().includes(q)
     );
   });
 
   function openNew() {
     setEditing(null);
-    setForm(emptyForm);
+    const numero = generateNextManutencaoNumero(manutencoes);
+    setForm({ ...emptyForm, numero });
     setDialogOpen(true);
   }
 
@@ -54,16 +130,41 @@ export default function ManutencaoPage() {
   }
 
   function handleSave() {
+    const totalItens = form.itens.reduce((s, i) => s + i.custo, 0);
+    const finalForm = { ...form, custo: totalItens > 0 ? totalItens : form.custo };
+
     if (editing) {
       setManutencoes((prev) =>
-        prev.map((m) => (m.id === editing.id ? { ...form, id: editing.id } : m))
+        prev.map((m) => (m.id === editing.id ? { ...finalForm, id: editing.id } : m))
       );
     } else {
       const newId = String(manutencoes.length + 1);
-      setManutencoes((prev) => [...prev, { ...form, id: newId }]);
+      setManutencoes((prev) => [...prev, { ...finalForm, id: newId }]);
     }
     setDialogOpen(false);
   }
+
+  function addItem() {
+    const newItem: ManutencaoItem = {
+      id: String(form.itens.length + 1),
+      descricao: "",
+      custo: 0,
+    };
+    setForm({ ...form, itens: [...form.itens, newItem] });
+  }
+
+  function updateItem(index: number, field: keyof ManutencaoItem, value: string | number) {
+    const updated = form.itens.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    );
+    setForm({ ...form, itens: updated });
+  }
+
+  function removeItem(index: number) {
+    setForm({ ...form, itens: form.itens.filter((_, i) => i !== index) });
+  }
+
+  const totalItens = form.itens.reduce((s, i) => s + i.custo, 0);
 
   return (
     <div className="space-y-6">
@@ -84,7 +185,7 @@ export default function ManutencaoPage() {
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por descrição, bem ou responsável..."
+            placeholder="Buscar por nº manutenção, nº bem, descrição ou responsável..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -97,6 +198,7 @@ export default function ManutencaoPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Nº</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Bem</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Descrição</th>
@@ -114,6 +216,7 @@ export default function ManutencaoPage() {
                     onClick={() => openEdit(m)}
                     className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors"
                   >
+                    <td className="px-4 py-3 font-mono text-xs">#{m.numero}</td>
                     <td className="px-4 py-3 text-muted-foreground">{formatDate(m.data)}</td>
                     <td className="px-4 py-3">
                       <span className="font-medium">{bem?.descricao || "—"}</span>
@@ -138,7 +241,7 @@ export default function ManutencaoPage() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     Nenhuma manutenção encontrada.
                   </td>
                 </tr>
@@ -149,28 +252,20 @@ export default function ManutencaoPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display">
-              {editing ? "Editar Manutenção" : "Nova Manutenção"}
+              {editing ? `Manutenção #${editing.numero}` : `Nova Manutenção #${form.numero}`}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div>
               <Label>Bem</Label>
-              <Select
+              <BemSearchSelect
                 value={form.bemId}
-                onValueChange={(v) => setForm({ ...form, bemId: v })}
-              >
-                <SelectTrigger><SelectValue placeholder="Selecione o bem" /></SelectTrigger>
-                <SelectContent>
-                  {mockBens.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>
-                      #{b.id} - {b.descricao}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setForm({ ...form, bemId: v })}
+                bens={mockBens}
+              />
             </div>
             <div>
               <Label>Descrição</Label>
@@ -202,31 +297,95 @@ export default function ManutencaoPage() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Custo (R$)</Label>
-                <Input
-                  type="number"
-                  value={form.custo || ""}
-                  onChange={(e) => setForm({ ...form, custo: Number(e.target.value) })}
-                />
-              </div>
-              <div>
-                <Label>Responsável</Label>
-                <Input
-                  value={form.responsavel}
-                  onChange={(e) => setForm({ ...form, responsavel: e.target.value })}
-                />
-              </div>
+            <div>
+              <Label>Responsável</Label>
+              <Input
+                value={form.responsavel}
+                onChange={(e) => setForm({ ...form, responsavel: e.target.value })}
+              />
             </div>
             <div>
               <Label>Observações</Label>
               <Textarea
                 value={form.observacoes}
                 onChange={(e) => setForm({ ...form, observacoes: e.target.value })}
-                rows={3}
+                rows={2}
               />
             </div>
+
+            {/* Itens da manutenção */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Itens da Manutenção</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
+                  <Plus size={14} /> Adicionar Item
+                </Button>
+              </div>
+              {form.itens.length > 0 && (
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-muted/50 border-b border-border">
+                        <th className="text-left px-3 py-2 font-medium text-muted-foreground">Descrição</th>
+                        <th className="text-right px-3 py-2 font-medium text-muted-foreground w-32">Custo (R$)</th>
+                        <th className="w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {form.itens.map((item, idx) => (
+                        <tr key={idx} className="border-b border-border last:border-0">
+                          <td className="px-3 py-1.5">
+                            <Input
+                              value={item.descricao}
+                              onChange={(e) => updateItem(idx, "descricao", e.target.value)}
+                              className="h-8 text-sm"
+                              placeholder="Descrição do item"
+                            />
+                          </td>
+                          <td className="px-3 py-1.5">
+                            <Input
+                              type="number"
+                              value={item.custo || ""}
+                              onChange={(e) => updateItem(idx, "custo", Number(e.target.value))}
+                              className="h-8 text-sm text-right"
+                            />
+                          </td>
+                          <td className="px-1 py-1.5">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeItem(idx)}
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                      {form.itens.length > 0 && (
+                        <tr className="bg-muted/30">
+                          <td className="px-3 py-2 text-right font-medium text-muted-foreground">Total:</td>
+                          <td className="px-3 py-2 text-right font-semibold">{formatCurrency(totalItens)}</td>
+                          <td></td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {form.itens.length === 0 && (
+                <div>
+                  <Label>Custo Total (R$)</Label>
+                  <Input
+                    type="number"
+                    value={form.custo || ""}
+                    onChange={(e) => setForm({ ...form, custo: Number(e.target.value) })}
+                  />
+                </div>
+              )}
+            </div>
+
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancelar
