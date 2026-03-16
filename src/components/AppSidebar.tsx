@@ -60,6 +60,7 @@ export default function AppSidebar() {
             <p className="text-xs text-sidebar-foreground/50">{perfil || "—"}</p>
           </div>
         </div>
+        <NotificationButton />
         <button
           onClick={async () => {
             await signOut();
