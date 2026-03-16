@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { Menu, X, LayoutDashboard, Package, Wrench, Users, Settings, History } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
-const links = [
-  { to: "/", label: "Painel", icon: LayoutDashboard },
-  { to: "/patrimonio", label: "Patrimônio", icon: Package },
-  { to: "/manutencao", label: "Manutenção", icon: Wrench },
-  { to: "/historico", label: "Histórico", icon: History },
-  { to: "/usuarios", label: "Usuários", icon: Users },
-  { to: "/cadastros", label: "Cadastros", icon: Settings },
+const allLinks = [
+  { to: "/", label: "Painel", icon: LayoutDashboard, directorOnly: false },
+  { to: "/patrimonio", label: "Patrimônio", icon: Package, directorOnly: false },
+  { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false },
+  { to: "/historico", label: "Histórico", icon: History, directorOnly: false },
+  { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true },
+  { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true },
 ];
 
 export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { perfil } = useAuth();
+
+  const links = allLinks.filter((link) => !link.directorOnly || perfil === "Diretor");
 
   return (
     <div className="md:hidden">

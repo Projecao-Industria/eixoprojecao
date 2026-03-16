@@ -57,8 +57,8 @@ const App = () => (
               <Route path="/" element={<Dashboard />} />
               <Route path="/patrimonio" element={<Patrimonio />} />
               <Route path="/manutencao" element={<Manutencao />} />
-              <Route path="/usuarios" element={<Usuarios />} />
-              <Route path="/cadastros" element={<Cadastros />} />
+              <Route path="/usuarios" element={<DirectorRoute><Usuarios /></DirectorRoute>} />
+              <Route path="/cadastros" element={<DirectorRoute><Cadastros /></DirectorRoute>} />
               <Route path="/historico" element={<HistoricoBem />} />
             </Route>
             <Route path="*" element={<NotFound />} />
