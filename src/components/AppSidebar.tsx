@@ -55,7 +55,7 @@ export default function AppSidebar() {
           </div>
           <div>
             <p className="text-sm font-medium text-sidebar-foreground">{user?.user_metadata?.nome || currentUser.nome}</p>
-            <p className="text-xs text-sidebar-foreground/50">{currentUser.perfil}</p>
+            <p className="text-xs text-sidebar-foreground/50">{perfil || "—"}</p>
           </div>
         </div>
         <button
