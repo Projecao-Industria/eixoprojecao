@@ -34,6 +34,9 @@ export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>(mockUsuarios);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Usuario | null>(null);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const emptyForm: Omit<Usuario, "id"> = {
     nome: "",
