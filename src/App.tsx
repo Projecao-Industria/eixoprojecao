@@ -37,6 +37,13 @@ function ProtectedRoutes() {
   return <AppLayout />;
 }
 
+function DirectorRoute({ children }: { children: React.ReactNode }) {
+  const { perfil, loading } = useAuth();
+  if (loading) return null;
+  if (perfil !== "Diretor") return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
