@@ -1,6 +1,8 @@
-import { LayoutDashboard, Package, Wrench, Users, User, Settings, History } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, LogOut } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const links = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
