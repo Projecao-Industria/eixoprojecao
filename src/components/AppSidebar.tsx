@@ -4,18 +4,18 @@ import { currentUser } from "@/lib/mockData";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-const links = [
-  { to: "/", label: "Painel", icon: LayoutDashboard },
-  { to: "/patrimonio", label: "Patrimônio", icon: Package },
-  { to: "/manutencao", label: "Manutenção", icon: Wrench },
-  { to: "/historico", label: "Histórico", icon: History },
-  { to: "/usuarios", label: "Usuários", icon: Users },
-  { to: "/cadastros", label: "Cadastros", icon: Settings },
+const allLinks = [
+  { to: "/", label: "Painel", icon: LayoutDashboard, directorOnly: false },
+  { to: "/patrimonio", label: "Patrimônio", icon: Package, directorOnly: false },
+  { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false },
+  { to: "/historico", label: "Histórico", icon: History, directorOnly: false },
+  { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true },
+  { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true },
 ];
 
 export default function AppSidebar() {
   const location = useLocation();
-  const { signOut, user } = useAuth();
+  const { signOut, user, perfil } = useAuth();
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground min-h-screen">
@@ -27,23 +27,25 @@ export default function AppSidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {links.map((link) => {
-          const isActive = location.pathname === link.to;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-primary"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-              }`}
-            >
-              <link.icon size={18} />
-              {link.label}
-            </NavLink>
-          );
-        })}
+        {allLinks
+          .filter((link) => !link.directorOnly || perfil === "Diretor")
+          .map((link) => {
+            const isActive = location.pathname === link.to;
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                }`}
+              >
+                <link.icon size={18} />
+                {link.label}
+              </NavLink>
+            );
+          })}
       </nav>
 
       <div className="p-4 border-t border-sidebar-border">
