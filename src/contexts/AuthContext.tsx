@@ -45,15 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setPerfil(data?.perfil ?? null);
     setNome(data?.nome ?? null);
 
-    // For Manutenção users, fetch allowed category IDs
+    // For Manutenção users, fetch allowed category and setor IDs
     if (data?.perfil === "Manutenção") {
-      const { data: cats } = await supabase
-        .from("profile_categorias")
-        .select("categoria_id")
-        .eq("profile_id", userId);
+      const [{ data: cats }, { data: sets }] = await Promise.all([
+        supabase.from("profile_categorias").select("categoria_id").eq("profile_id", userId),
+        supabase.from("profile_setores").select("setor_id").eq("profile_id", userId),
+      ]);
       setCategoriasPermitidas(cats?.map((c) => c.categoria_id) ?? []);
+      setSetoresPermitidos(sets?.map((s) => s.setor_id) ?? []);
     } else {
-      setCategoriasPermitidas(null); // null means full access
+      setCategoriasPermitidas(null);
+      setSetoresPermitidos(null);
     }
   }
 
