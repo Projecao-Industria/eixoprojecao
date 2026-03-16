@@ -1,12 +1,18 @@
-import { Package, Wrench, CheckCircle2, XCircle } from "lucide-react";
+import { Package, Wrench, CheckCircle2, XCircle, DollarSign, TrendingDown } from "lucide-react";
 import { Link } from "react-router-dom";
-import { mockBens, mockManutencoes, formatCurrency, formatDate, currentUser } from "@/lib/mockData";
+import { mockBens, mockManutencoes, formatCurrency, formatDate, calcularValorResidual, currentUser } from "@/lib/mockData";
 
 export default function Dashboard() {
-  const totalAtivos = mockBens.filter((b) => b.status === "Ativo").length;
+  const ativos = mockBens.filter((b) => b.status === "Ativo");
+  const totalAtivos = ativos.length;
   const totalBaixados = mockBens.filter((b) => b.status === "Baixado").length;
   const totalManutencoes = mockManutencoes.length;
-  const valorTotal = mockBens.reduce((sum, b) => sum + b.valorCompra, 0);
+
+  const valorCompraAtivos = ativos.reduce((sum, b) => sum + b.valorCompra, 0);
+  const valorDepreciadoAtivos = ativos.reduce(
+    (sum, b) => sum + calcularValorResidual(b.valorCompra, b.depreciacaoAnual, b.dataCompra),
+    0
+  );
 
   const stats = [
     { label: "Total de Bens", value: mockBens.length, icon: Package, color: "text-primary" },
@@ -42,11 +48,23 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="font-display font-semibold">Valor Total do Patrimônio</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
+          <div className="flex items-center gap-2 mb-1">
+            <DollarSign size={18} className="text-primary" />
+            <h2 className="font-display font-semibold text-sm text-muted-foreground">Valor de Compra do Patrimônio</h2>
+          </div>
+          <p className="text-3xl font-display font-bold text-primary">{formatCurrency(valorCompraAtivos)}</p>
+          <p className="text-xs text-muted-foreground mt-1">Apenas bens ativos</p>
         </div>
-        <p className="text-3xl font-display font-bold text-primary">{formatCurrency(valorTotal)}</p>
+        <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingDown size={18} className="text-accent" />
+            <h2 className="font-display font-semibold text-sm text-muted-foreground">Patrimônio Depreciado</h2>
+          </div>
+          <p className="text-3xl font-display font-bold text-accent">{formatCurrency(valorDepreciadoAtivos)}</p>
+          <p className="text-xs text-muted-foreground mt-1">Valor residual dos bens ativos</p>
+        </div>
       </div>
 
       <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
