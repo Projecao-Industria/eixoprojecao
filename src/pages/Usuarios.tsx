@@ -35,16 +35,32 @@ export default function UsuariosPage() {
 
   useEffect(() => {
     async function fetchUsuarios() {
-      const { data: profiles } = await supabase.from("profiles").select("*");
+      const [{ data: profiles }, { data: profCats }, { data: profSets }, { data: categoriasDb }, { data: setoresDb }] = await Promise.all([
+        supabase.from("profiles").select("*"),
+        supabase.from("profile_categorias").select("profile_id, categoria_id, categorias(nome)"),
+        supabase.from("profile_setores").select("profile_id, setor_id, setores(nome)"),
+        supabase.from("categorias").select("id, nome"),
+        supabase.from("setores").select("id, nome"),
+      ]);
       if (profiles) {
-        const mapped: Usuario[] = profiles.map((p: any) => ({
-          id: p.id,
-          nome: p.nome,
-          email: p.email,
-          perfil: p.perfil as PerfilUsuario,
-          categorias: [],
-          setores: [],
-        }));
+        const mapped: Usuario[] = profiles.map((p: any) => {
+          const cats = (profCats || [])
+            .filter((pc: any) => pc.profile_id === p.id)
+            .map((pc: any) => pc.categorias?.nome)
+            .filter(Boolean) as Categoria[];
+          const sets = (profSets || [])
+            .filter((ps: any) => ps.profile_id === p.id)
+            .map((ps: any) => ps.setores?.nome)
+            .filter(Boolean) as Setor[];
+          return {
+            id: p.id,
+            nome: p.nome,
+            email: p.email,
+            perfil: p.perfil as PerfilUsuario,
+            categorias: cats,
+            setores: sets,
+          };
+        });
         setUsuarios(mapped);
       }
     }
@@ -85,10 +101,51 @@ export default function UsuariosPage() {
 
   async function handleSave() {
     if (editing) {
-      setUsuarios((prev) =>
-        prev.map((u) => (u.id === editing.id ? { ...form, id: editing.id } : u))
-      );
-      setDialogOpen(false);
+      setSaving(true);
+      try {
+        // Update profile
+        await supabase.from("profiles").update({ nome: form.nome, perfil: form.perfil }).eq("id", editing.id);
+
+        // Update categorias
+        await supabase.from("profile_categorias").delete().eq("profile_id", editing.id);
+        const { data: categoriasDb } = await supabase.from("categorias").select("id, nome");
+        if (form.categorias.length > 0 && categoriasDb) {
+          const catRows = form.categorias
+            .map((catNome) => {
+              const found = categoriasDb.find((c) => c.nome === catNome);
+              return found ? { profile_id: editing.id, categoria_id: found.id } : null;
+            })
+            .filter(Boolean);
+          if (catRows.length > 0) {
+            await supabase.from("profile_categorias").insert(catRows as any);
+          }
+        }
+
+        // Update setores
+        await supabase.from("profile_setores").delete().eq("profile_id", editing.id);
+        const { data: setoresDb } = await supabase.from("setores").select("id, nome");
+        if (form.setores.length > 0 && setoresDb) {
+          const setRows = form.setores
+            .map((setNome) => {
+              const found = setoresDb.find((s) => s.nome === setNome);
+              return found ? { profile_id: editing.id, setor_id: found.id } : null;
+            })
+            .filter(Boolean);
+          if (setRows.length > 0) {
+            await supabase.from("profile_setores").insert(setRows as any);
+          }
+        }
+
+        setUsuarios((prev) =>
+          prev.map((u) => (u.id === editing.id ? { ...form, id: editing.id } : u))
+        );
+        toast({ title: "Usuário atualizado com sucesso" });
+        setDialogOpen(false);
+      } catch (err: any) {
+        toast({ title: err.message || "Erro ao atualizar", variant: "destructive" });
+      } finally {
+        setSaving(false);
+      }
       return;
     }
 
@@ -110,7 +167,40 @@ export default function UsuariosPage() {
         return;
       }
 
-      const newId = res.data.user?.id || String(usuarios.length + 1);
+      const newId = res.data.user?.id;
+      if (!newId) {
+        toast({ title: "Erro: ID do usuário não retornado", variant: "destructive" });
+        return;
+      }
+
+      // Save categorias and setores for the new user
+      const { data: categoriasDb } = await supabase.from("categorias").select("id, nome");
+      const { data: setoresDb } = await supabase.from("setores").select("id, nome");
+
+      if (form.categorias.length > 0 && categoriasDb) {
+        const catRows = form.categorias
+          .map((catNome) => {
+            const found = categoriasDb.find((c) => c.nome === catNome);
+            return found ? { profile_id: newId, categoria_id: found.id } : null;
+          })
+          .filter(Boolean);
+        if (catRows.length > 0) {
+          await supabase.from("profile_categorias").insert(catRows as any);
+        }
+      }
+
+      if (form.setores.length > 0 && setoresDb) {
+        const setRows = form.setores
+          .map((setNome) => {
+            const found = setoresDb.find((s) => s.nome === setNome);
+            return found ? { profile_id: newId, setor_id: found.id } : null;
+          })
+          .filter(Boolean);
+        if (setRows.length > 0) {
+          await supabase.from("profile_setores").insert(setRows as any);
+        }
+      }
+
       setUsuarios((prev) => [...prev, { ...form, id: newId }]);
       toast({ title: "Usuário criado com sucesso" });
       setDialogOpen(false);
