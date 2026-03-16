@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   perfil: PerfilUsuario | null;
   nome: string | null;
+  categoriasPermitidas: string[] | null; // null = all access
   signOut: () => Promise<void>;
 }
 
