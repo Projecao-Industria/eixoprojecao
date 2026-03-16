@@ -29,6 +29,8 @@ const perfilColors: Record<PerfilUsuario, string> = {
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [categoriasDB, setCategoriasDB] = useState<string[]>([]);
+  const [setoresDB, setSetoresDB] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchUsuarios() {
