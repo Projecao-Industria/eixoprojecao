@@ -55,6 +55,17 @@ export default function AppSidebar() {
             <p className="text-xs text-sidebar-foreground/50">{currentUser.perfil}</p>
           </div>
         </div>
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            toast({ title: "Sessão encerrada" });
+            window.location.href = "/";
+          }}
+          className="flex items-center gap-3 px-3 py-2 mt-1 w-full rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
+        >
+          <LogOut size={18} />
+          Sair
+        </button>
       </div>
     </aside>
   );
