@@ -64,16 +64,42 @@ export default function UsuariosPage() {
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (editing) {
       setUsuarios((prev) =>
         prev.map((u) => (u.id === editing.id ? { ...form, id: editing.id } : u))
       );
-    } else {
-      const newId = String(usuarios.length + 1);
-      setUsuarios((prev) => [...prev, { ...form, id: newId }]);
+      setDialogOpen(false);
+      return;
     }
-    setDialogOpen(false);
+
+    // New user — create via edge function
+    if (!password || password.length < 6) {
+      toast({ title: "A senha deve ter no mínimo 6 caracteres", variant: "destructive" });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("create-user", {
+        body: { nome: form.nome, email: form.email, password, perfil: form.perfil },
+      });
+
+      if (res.error || res.data?.error) {
+        toast({ title: res.data?.error || "Erro ao criar usuário", variant: "destructive" });
+        return;
+      }
+
+      const newId = res.data.user?.id || String(usuarios.length + 1);
+      setUsuarios((prev) => [...prev, { ...form, id: newId }]);
+      toast({ title: "Usuário criado com sucesso" });
+      setDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: err.message || "Erro ao criar usuário", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   }
 
   function toggleCategoria(cat: Categoria) {
