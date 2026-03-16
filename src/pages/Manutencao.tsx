@@ -86,7 +86,7 @@ function BemSearchSelect({
 }
 
 export default function ManutencaoPage() {
-  const { categoriasPermitidas } = useAuth();
+  const { categoriasPermitidas, setoresPermitidos } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [manutencoes, setManutencoes] = useState<Manutencao[]>([]);
   const [bensDB, setBensDB] = useState<Bem[]>([]);
