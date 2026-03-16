@@ -13,6 +13,7 @@ import {
   type DepreciacaoAnual,
 } from "@/lib/mockData";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ import CurrencyInput from "@/components/CurrencyInput";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
+  const { categoriasPermitidas } = useAuth();
   const [bens, setBens] = useState<Bem[]>([]);
   const [categoriasDB, setCategoriasDB] = useState<{ id: string; nome: string }[]>([]);
   const [setoresDB, setSetoresDB] = useState<{ id: string; nome: string }[]>([]);
@@ -33,13 +35,18 @@ export default function Patrimonio() {
   }, []);
 
   async function fetchAll() {
-    const [catRes, setRes, bensRes] = await Promise.all([
+    const [catRes, setRes] = await Promise.all([
       supabase.from("categorias").select("id, nome").order("nome"),
       supabase.from("setores").select("id, nome").order("nome"),
-      supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id"),
     ]);
     if (catRes.data) setCategoriasDB(catRes.data);
     if (setRes.data) setSetoresDB(setRes.data);
+
+    let bensQuery = supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id");
+    if (categoriasPermitidas) {
+      bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
+    }
+    const bensRes = await bensQuery;
     if (bensRes.data) {
       const mapped: Bem[] = bensRes.data.map((b: any) => ({
         id: b.id,

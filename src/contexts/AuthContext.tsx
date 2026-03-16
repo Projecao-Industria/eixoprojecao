@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   perfil: PerfilUsuario | null;
   nome: string | null;
+  categoriasPermitidas: string[] | null; // null = all access
   signOut: () => Promise<void>;
 }
 
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   perfil: null,
   nome: null,
+  categoriasPermitidas: null,
   signOut: async () => {},
 });
 
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [nome, setNome] = useState<string | null>(null);
+  const [categoriasPermitidas, setCategoriasPermitidas] = useState<string[] | null>(null);
 
   async function fetchProfile(userId: string) {
     const { data } = await supabase
@@ -38,6 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single();
     setPerfil(data?.perfil ?? null);
     setNome(data?.nome ?? null);
+
+    // For Manutenção users, fetch allowed category IDs
+    if (data?.perfil === "Manutenção") {
+      const { data: cats } = await supabase
+        .from("profile_categorias")
+        .select("categoria_id")
+        .eq("profile_id", userId);
+      setCategoriasPermitidas(cats?.map((c) => c.categoria_id) ?? []);
+    } else {
+      setCategoriasPermitidas(null); // null means full access
+    }
   }
 
   useEffect(() => {
@@ -73,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, perfil, nome, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, perfil, nome, categoriasPermitidas, signOut }}>
       {children}
     </AuthContext.Provider>
   );

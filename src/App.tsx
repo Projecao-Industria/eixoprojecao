@@ -44,6 +44,13 @@ function DirectorRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function NonManutencaoRoute({ children }: { children: React.ReactNode }) {
+  const { perfil, loading } = useAuth();
+  if (loading) return null;
+  if (perfil === "Manutenção") return <Navigate to="/patrimonio" replace />;
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -54,7 +61,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<LoginGuard />} />
             <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<NonManutencaoRoute><Dashboard /></NonManutencaoRoute>} />
               <Route path="/patrimonio" element={<Patrimonio />} />
               <Route path="/manutencao" element={<Manutencao />} />
               <Route path="/usuarios" element={<DirectorRoute><Usuarios /></DirectorRoute>} />
