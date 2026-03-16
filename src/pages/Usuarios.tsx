@@ -51,6 +51,8 @@ export default function UsuariosPage() {
   function openNew() {
     setEditing(null);
     setForm(emptyForm);
+    setPassword("");
+    setShowPassword(false);
     setDialogOpen(true);
   }
 
