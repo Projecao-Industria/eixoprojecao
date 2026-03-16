@@ -17,7 +17,7 @@ export default function MobileHeader() {
   const location = useLocation();
   const { perfil } = useAuth();
 
-  const links = allLinks.filter((link) => !link.directorOnly || perfil === "Diretor");
+  const links = allLinks.filter((link) => (!link.directorOnly || perfil === "Diretor") && (!link.hideForManutencao || perfil !== "Manutenção"));
 
   return (
     <div className="md:hidden">

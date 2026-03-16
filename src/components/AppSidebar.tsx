@@ -28,7 +28,7 @@ export default function AppSidebar() {
 
       <nav className="flex-1 p-4 space-y-1">
         {allLinks
-          .filter((link) => !link.directorOnly || perfil === "Diretor")
+          .filter((link) => (!link.directorOnly || perfil === "Diretor") && (!link.hideForManutencao || perfil !== "Manutenção"))
           .map((link) => {
             const isActive = location.pathname === link.to;
             return (
