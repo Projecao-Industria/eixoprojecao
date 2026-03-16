@@ -110,7 +110,40 @@ export default function UsuariosPage() {
         return;
       }
 
-      const newId = res.data.user?.id || String(usuarios.length + 1);
+      const newId = res.data.user?.id;
+      if (!newId) {
+        toast({ title: "Erro: ID do usuário não retornado", variant: "destructive" });
+        return;
+      }
+
+      // Save categorias and setores for the new user
+      const { data: categoriasDb } = await supabase.from("categorias").select("id, nome");
+      const { data: setoresDb } = await supabase.from("setores").select("id, nome");
+
+      if (form.categorias.length > 0 && categoriasDb) {
+        const catRows = form.categorias
+          .map((catNome) => {
+            const found = categoriasDb.find((c) => c.nome === catNome);
+            return found ? { profile_id: newId, categoria_id: found.id } : null;
+          })
+          .filter(Boolean);
+        if (catRows.length > 0) {
+          await supabase.from("profile_categorias").insert(catRows as any);
+        }
+      }
+
+      if (form.setores.length > 0 && setoresDb) {
+        const setRows = form.setores
+          .map((setNome) => {
+            const found = setoresDb.find((s) => s.nome === setNome);
+            return found ? { profile_id: newId, setor_id: found.id } : null;
+          })
+          .filter(Boolean);
+        if (setRows.length > 0) {
+          await supabase.from("profile_setores").insert(setRows as any);
+        }
+      }
+
       setUsuarios((prev) => [...prev, { ...form, id: newId }]);
       toast({ title: "Usuário criado com sucesso" });
       setDialogOpen(false);
