@@ -127,7 +127,7 @@ export default function HistoricoBem() {
           data: m.data,
           tipo: m.tipo,
           custo: m.custo,
-          responsavel: m.responsavel,
+          fornecedor: m.fornecedor,
         }))
       );
 
