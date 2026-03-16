@@ -381,10 +381,17 @@ export default function ManutencaoPage() {
               </div>
             </div>
             <div>
-              <Label>Responsável</Label>
+              <Label>Fornecedor</Label>
               <Input
-                value={form.responsavel}
-                onChange={(e) => setForm({ ...form, responsavel: e.target.value })}
+                value={form.fornecedor}
+                onChange={(e) => setForm({ ...form, fornecedor: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>NFe ou Número Pedido</Label>
+              <Input
+                value={form.nfePedido}
+                onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
               />
             </div>
             <div>
