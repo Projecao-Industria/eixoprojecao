@@ -25,6 +25,20 @@ import CurrencyInput from "@/components/CurrencyInput";
 export default function Patrimonio() {
   const navigate = useNavigate();
   const [bens, setBens] = useState<Bem[]>(mockBens);
+  const [categoriasDB, setCategoriasDB] = useState<string[]>([]);
+  const [setoresDB, setSetoresDB] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchLists() {
+      const [catRes, setRes] = await Promise.all([
+        supabase.from("categorias").select("nome").order("nome"),
+        supabase.from("setores").select("nome").order("nome"),
+      ]);
+      if (catRes.data) setCategoriasDB(catRes.data.map((c: any) => c.nome));
+      if (setRes.data) setSetoresDB(setRes.data.map((s: any) => s.nome));
+    }
+    fetchLists();
+  }, []);
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState<string>("all");
   const [filterSetor, setFilterSetor] = useState<string>("all");
