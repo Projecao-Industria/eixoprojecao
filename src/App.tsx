@@ -11,6 +11,7 @@ import Manutencao from "./pages/Manutencao";
 import Usuarios from "./pages/Usuarios";
 import Cadastros from "./pages/Cadastros";
 import HistoricoBem from "./pages/HistoricoBem";
+import CalendarioManutencoes from "./pages/CalendarioManutencoes";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
