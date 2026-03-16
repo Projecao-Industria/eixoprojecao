@@ -14,7 +14,315 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bem_extras: {
+        Row: {
+          bem_id: string
+          chassi: string
+          created_at: string
+          id: string
+          km: string
+          modelo: string
+          numero_serie: string
+          placa: string
+          renavam: string
+        }
+        Insert: {
+          bem_id: string
+          chassi?: string
+          created_at?: string
+          id?: string
+          km?: string
+          modelo?: string
+          numero_serie?: string
+          placa?: string
+          renavam?: string
+        }
+        Update: {
+          bem_id?: string
+          chassi?: string
+          created_at?: string
+          id?: string
+          km?: string
+          modelo?: string
+          numero_serie?: string
+          placa?: string
+          renavam?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bem_extras_bem_id_fkey"
+            columns: ["bem_id"]
+            isOneToOne: true
+            referencedRelation: "bens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bens: {
+        Row: {
+          categoria_id: string
+          created_at: string
+          data_baixa: string | null
+          data_compra: string
+          depreciacao_anual: number
+          descricao: string
+          id: string
+          motivo_baixa: string
+          nfe: string
+          setor_id: string
+          status: Database["public"]["Enums"]["status_bem"]
+          usuario: string
+          valor_compra: number
+        }
+        Insert: {
+          categoria_id: string
+          created_at?: string
+          data_baixa?: string | null
+          data_compra: string
+          depreciacao_anual?: number
+          descricao: string
+          id: string
+          motivo_baixa?: string
+          nfe?: string
+          setor_id: string
+          status?: Database["public"]["Enums"]["status_bem"]
+          usuario?: string
+          valor_compra?: number
+        }
+        Update: {
+          categoria_id?: string
+          created_at?: string
+          data_baixa?: string | null
+          data_compra?: string
+          depreciacao_anual?: number
+          descricao?: string
+          id?: string
+          motivo_baixa?: string
+          nfe?: string
+          setor_id?: string
+          status?: Database["public"]["Enums"]["status_bem"]
+          usuario?: string
+          valor_compra?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bens_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bens_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categorias: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      manutencao_itens: {
+        Row: {
+          custo: number
+          descricao: string
+          id: string
+          manutencao_id: string
+        }
+        Insert: {
+          custo?: number
+          descricao?: string
+          id?: string
+          manutencao_id: string
+        }
+        Update: {
+          custo?: number
+          descricao?: string
+          id?: string
+          manutencao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manutencao_itens_manutencao_id_fkey"
+            columns: ["manutencao_id"]
+            isOneToOne: false
+            referencedRelation: "manutencoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manutencoes: {
+        Row: {
+          bem_id: string
+          created_at: string
+          custo: number
+          data: string
+          descricao: string
+          id: string
+          numero: string
+          observacoes: string
+          responsavel: string
+          tipo: Database["public"]["Enums"]["tipo_manutencao"]
+        }
+        Insert: {
+          bem_id: string
+          created_at?: string
+          custo?: number
+          data: string
+          descricao?: string
+          id?: string
+          numero: string
+          observacoes?: string
+          responsavel?: string
+          tipo?: Database["public"]["Enums"]["tipo_manutencao"]
+        }
+        Update: {
+          bem_id?: string
+          created_at?: string
+          custo?: number
+          data?: string
+          descricao?: string
+          id?: string
+          numero?: string
+          observacoes?: string
+          responsavel?: string
+          tipo?: Database["public"]["Enums"]["tipo_manutencao"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manutencoes_bem_id_fkey"
+            columns: ["bem_id"]
+            isOneToOne: false
+            referencedRelation: "bens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_categorias: {
+        Row: {
+          categoria_id: string
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          categoria_id: string
+          id?: string
+          profile_id: string
+        }
+        Update: {
+          categoria_id?: string
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_categorias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_categorias_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_setores: {
+        Row: {
+          id: string
+          profile_id: string
+          setor_id: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          setor_id: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          setor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_setores_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_setores_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          perfil: Database["public"]["Enums"]["perfil_usuario"]
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          id: string
+          nome?: string
+          perfil?: Database["public"]["Enums"]["perfil_usuario"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          perfil?: Database["public"]["Enums"]["perfil_usuario"]
+        }
+        Relationships: []
+      }
+      setores: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +331,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      perfil_usuario: "Diretor" | "Gestor" | "Manutenção"
+      status_bem: "Ativo" | "Baixado"
+      tipo_manutencao: "Preventiva" | "Corretiva"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +460,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      perfil_usuario: ["Diretor", "Gestor", "Manutenção"],
+      status_bem: ["Ativo", "Baixado"],
+      tipo_manutencao: ["Preventiva", "Corretiva"],
+    },
   },
 } as const
