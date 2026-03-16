@@ -381,7 +381,7 @@ export default function Patrimonio() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {categoriasDB.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
