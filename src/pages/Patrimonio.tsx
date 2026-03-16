@@ -35,13 +35,18 @@ export default function Patrimonio() {
   }, []);
 
   async function fetchAll() {
-    const [catRes, setRes, bensRes] = await Promise.all([
+    const [catRes, setRes] = await Promise.all([
       supabase.from("categorias").select("id, nome").order("nome"),
       supabase.from("setores").select("id, nome").order("nome"),
-      supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id"),
     ]);
     if (catRes.data) setCategoriasDB(catRes.data);
     if (setRes.data) setSetoresDB(setRes.data);
+
+    let bensQuery = supabase.from("bens").select("*, categorias(nome), setores(nome)").order("id");
+    if (categoriasPermitidas) {
+      bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
+    }
+    const bensRes = await bensQuery;
     if (bensRes.data) {
       const mapped: Bem[] = bensRes.data.map((b: any) => ({
         id: b.id,

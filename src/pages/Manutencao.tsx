@@ -85,6 +85,7 @@ function BemSearchSelect({
 }
 
 export default function ManutencaoPage() {
+  const { categoriasPermitidas } = useAuth();
   const [manutencoes, setManutencoes] = useState<Manutencao[]>([]);
   const [bensDB, setBensDB] = useState<Bem[]>([]);
   const [search, setSearch] = useState("");
@@ -96,10 +97,30 @@ export default function ManutencaoPage() {
   }, []);
 
   async function fetchAll() {
-    const [manRes, bensRes] = await Promise.all([
-      supabase.from("manutencoes").select("*, manutencao_itens(*)").order("numero"),
-      supabase.from("bens").select("id, descricao").order("id"),
-    ]);
+    let bensQuery = supabase.from("bens").select("id, descricao, categoria_id").order("id");
+    if (categoriasPermitidas) {
+      bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
+    }
+    const bensRes = await bensQuery;
+
+    const allowedBemIds: string[] = [];
+    if (bensRes.data) {
+      setBensDB(bensRes.data.map((b: any) => ({
+        id: b.id, descricao: b.descricao, categoria: "" as any, setor: "" as any,
+        usuario: "", dataCompra: "", nfe: "", valorCompra: 0, depreciacaoAnual: 10,
+        valorResidual: 0, dataBaixa: null, motivoBaixa: "", status: "Ativo" as any,
+      })));
+      allowedBemIds.push(...bensRes.data.map((b: any) => b.id));
+    }
+
+    let manQuery = supabase.from("manutencoes").select("*, manutencao_itens(*)").order("numero");
+    if (categoriasPermitidas && allowedBemIds.length > 0) {
+      manQuery = manQuery.in("bem_id", allowedBemIds);
+    } else if (categoriasPermitidas && allowedBemIds.length === 0) {
+      setManutencoes([]);
+      return;
+    }
+    const manRes = await manQuery;
     if (bensRes.data) {
       setBensDB(bensRes.data.map((b: any) => ({
         id: b.id, descricao: b.descricao, categoria: "" as any, setor: "" as any,
