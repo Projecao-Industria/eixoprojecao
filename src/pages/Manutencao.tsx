@@ -95,7 +95,28 @@ export default function ManutencaoPage() {
   const [editing, setEditing] = useState<Manutencao | null>(null);
 
   useEffect(() => {
-    fetchAll();
+    fetchAll().then(() => {
+      // Check for URL pre-fill params (from Calendário)
+      const prefillBem = searchParams.get("bem");
+      const prefillDescricao = searchParams.get("descricao");
+      const prefillData = searchParams.get("data");
+      const prefillTipo = searchParams.get("tipo");
+      if (prefillBem) {
+        const numero = generateNextManutencaoNumero(manutencoes);
+        setForm({
+          ...emptyForm,
+          numero,
+          bemId: prefillBem,
+          descricao: prefillDescricao || "",
+          data: prefillData || "",
+          tipo: (prefillTipo as "Preventiva" | "Corretiva") || "Preventiva",
+        });
+        setEditing(null);
+        setDialogOpen(true);
+        // Clear params
+        setSearchParams({}, { replace: true });
+      }
+    });
   }, []);
 
   async function fetchAll() {
