@@ -10,6 +10,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   perfil: PerfilUsuario | null;
+  nome: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   perfil: null,
+  nome: null,
   signOut: async () => {},
 });
 
@@ -26,14 +28,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
+  const [nome, setNome] = useState<string | null>(null);
 
-  async function fetchPerfil(userId: string) {
+  async function fetchProfile(userId: string) {
     const { data } = await supabase
       .from("profiles")
-      .select("perfil")
+      .select("perfil, nome")
       .eq("id", userId)
       .single();
     setPerfil(data?.perfil ?? null);
+    setNome(data?.nome ?? null);
   }
 
   useEffect(() => {
@@ -42,9 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchPerfil(session.user.id);
+          fetchProfile(session.user.id);
         } else {
           setPerfil(null);
+          setNome(null);
           setLoading(false);
         }
       }
@@ -54,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchPerfil(session.user.id).then(() => setLoading(false));
+        fetchProfile(session.user.id).then(() => setLoading(false));
       } else {
         setLoading(false);
       }
@@ -68,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, perfil, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, perfil, nome, signOut }}>
       {children}
     </AuthContext.Provider>
   );

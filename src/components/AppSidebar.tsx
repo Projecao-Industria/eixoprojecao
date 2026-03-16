@@ -15,7 +15,7 @@ const allLinks = [
 
 export default function AppSidebar() {
   const location = useLocation();
-  const { signOut, user, perfil } = useAuth();
+  const { signOut, user, perfil, nome } = useAuth();
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground min-h-screen">
@@ -54,7 +54,7 @@ export default function AppSidebar() {
             <User size={14} className="text-sidebar-primary-foreground" />
           </div>
           <div>
-            <p className="text-sm font-medium text-sidebar-foreground">{user?.user_metadata?.nome || currentUser.nome}</p>
+            <p className="text-sm font-medium text-sidebar-foreground">{nome || user?.email}</p>
             <p className="text-xs text-sidebar-foreground/50">{perfil || "—"}</p>
           </div>
         </div>
