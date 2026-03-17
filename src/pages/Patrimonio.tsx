@@ -180,6 +180,13 @@ export default function Patrimonio() {
 
   async function handleDeleteBem() {
     if (!editingBem) return;
+    // Delete manutencao_itens for all manutencoes of this bem
+    const { data: manutencoes } = await supabase.from("manutencoes").select("id").eq("bem_id", editingBem.id);
+    if (manutencoes && manutencoes.length > 0) {
+      const ids = manutencoes.map((m) => m.id);
+      await supabase.from("manutencao_itens").delete().in("manutencao_id", ids);
+    }
+    await supabase.from("manutencoes").delete().eq("bem_id", editingBem.id);
     await supabase.from("bem_extras").delete().eq("bem_id", editingBem.id);
     await supabase.from("manutencao_agenda").delete().eq("bem_id", editingBem.id);
     const { error } = await supabase.from("bens").delete().eq("id", editingBem.id);
