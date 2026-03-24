@@ -151,6 +151,23 @@ export default function HistoricoBem() {
         }))
       );
 
+      // Fetch entregas
+      const { data: eData } = await supabase
+        .from("entregas")
+        .select("*")
+        .eq("bem_id", bemId)
+        .order("data_entrega", { ascending: false });
+
+      setEntregas(
+        (eData || []).map((e: any) => ({
+          id: e.id,
+          bemId: e.bem_id,
+          gerenteNome: e.gerente_nome,
+          dataEntrega: e.data_entrega,
+          dataDevolucao: e.data_devolucao,
+        }))
+      );
+
       setLoading(false);
     };
 
