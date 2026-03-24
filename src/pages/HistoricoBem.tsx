@@ -75,7 +75,7 @@ export default function HistoricoBem() {
 
   // Fetch bem from Supabase when bemId changes
   useEffect(() => {
-    if (!bemId) { setBem(null); setManutencoes([]); return; }
+    if (!bemId) { setBem(null); setManutencoes([]); setEntregas([]); return; }
 
     const fetchBem = async () => {
       setLoading(true);
