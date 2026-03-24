@@ -33,6 +33,9 @@ export default function Cadastros() {
   const [novoGerenteNome, setNovoGerenteNome] = useState("");
   const [novoGerenteCpf, setNovoGerenteCpf] = useState("");
 
+  // Current gerente per setor
+  const [gerenteAtualPorSetor, setGerenteAtualPorSetor] = useState<Record<string, string>>({});
+
   // Vincular gerente dialog
   const [vinculoOpen, setVinculoOpen] = useState(false);
   const [vinculoSetorId, setVinculoSetorId] = useState("");
@@ -41,6 +44,10 @@ export default function Cadastros() {
   const [vinculoDataInicio, setVinculoDataInicio] = useState<Date | undefined>();
   const [vinculoDataFim, setVinculoDataFim] = useState<Date | undefined>();
   const [vinculosSetor, setVinculosSetor] = useState<SetorGerenteRow[]>([]);
+
+  // Edit data_fim
+  const [editingVinculoId, setEditingVinculoId] = useState<string | null>(null);
+  const [editDataFim, setEditDataFim] = useState<Date | undefined>();
 
   useEffect(() => {
     fetchCategorias();
