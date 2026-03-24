@@ -53,6 +53,7 @@ export default function Cadastros() {
     fetchCategorias();
     fetchSetores();
     fetchGerentes();
+    fetchGerentesAtuais();
   }, []);
 
   async function fetchCategorias() {
