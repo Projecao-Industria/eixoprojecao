@@ -66,6 +66,7 @@ export default function HistoricoBem() {
   const [bem, setBem] = useState<BemDB | null>(null);
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
+  const [entregas, setEntregas] = useState<EntregaDB[]>([]);
 
   useEffect(() => {
     const fromUrl = searchParams.get("bem");
