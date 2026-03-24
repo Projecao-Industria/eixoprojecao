@@ -262,6 +262,9 @@ export default function HistoricoBem() {
               <TabsTrigger value="manutencoes" className="gap-1.5">
                 <Wrench size={14} /> Manutenções ({manutencoes.length})
               </TabsTrigger>
+              <TabsTrigger value="entregas" className="gap-1.5">
+                <PackageCheck size={14} /> Entregas ({entregas.length})
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="detalhes" className="mt-4 space-y-4">
