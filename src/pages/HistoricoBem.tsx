@@ -202,6 +202,24 @@ export default function HistoricoBem() {
     toast.success("Especificações salvas!");
   };
 
+  const handleDevolucao = async (entregaId: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    const { error } = await supabase
+      .from("entregas")
+      .update({ data_devolucao: today })
+      .eq("id", entregaId);
+
+    if (error) {
+      toast.error("Erro ao registrar devolução");
+      return;
+    }
+
+    setEntregas(prev =>
+      prev.map(e => e.id === entregaId ? { ...e, dataDevolucao: today } : e)
+    );
+    toast.success("Devolução registrada!");
+  };
+
   const isVeiculo = bem?.categoria === "Veículos";
   const isMaquina = bem?.categoria === "Máquinas";
 
