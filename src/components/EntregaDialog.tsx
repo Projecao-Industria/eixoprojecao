@@ -134,6 +134,19 @@ export default function EntregaDialog({ open, onOpenChange, categoriasPermitidas
       ? [...gerentesPorSetor.values()][0].nome
       : "___________________________";
 
+    // Save delivery records for each selected bem
+    const entregas = selectedBens.map(b => ({
+      bem_id: b.id,
+      gerente_nome: gerenteNome,
+      data_entrega: dataEntrega,
+    }));
+
+    const { error: insertError } = await supabase.from("entregas").insert(entregas);
+    if (insertError) {
+      toast({ title: "Erro ao registrar entrega", description: insertError.message, variant: "destructive" });
+      return;
+    }
+
     generatePDF(selectedBens, gerenteNome, dataEntrega);
     onOpenChange(false);
   }
