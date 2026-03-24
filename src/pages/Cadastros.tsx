@@ -207,6 +207,27 @@ export default function Cadastros() {
   async function removeVinculo(id: string) {
     await supabase.from("setor_gerentes").delete().eq("id", id);
     fetchVinculosSetor(vinculoSetorId);
+    fetchGerentesAtuais();
+  }
+
+  async function updateVinculoDataFim(vinculoId: string) {
+    if (!editDataFim) {
+      toast({ title: "Selecione a data fim", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase
+      .from("setor_gerentes")
+      .update({ data_fim: format(editDataFim, "yyyy-MM-dd") })
+      .eq("id", vinculoId);
+    if (error) {
+      toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+      return;
+    }
+    setEditingVinculoId(null);
+    setEditDataFim(undefined);
+    fetchVinculosSetor(vinculoSetorId);
+    fetchGerentesAtuais();
+    toast({ title: "Data fim atualizada" });
   }
 
   return (
