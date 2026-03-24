@@ -157,6 +157,27 @@ export type Database = {
         }
         Relationships: []
       }
+      gerentes: {
+        Row: {
+          cpf: string
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          cpf?: string
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          cpf?: string
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       manutencao_agenda: {
         Row: {
           bem_id: string
@@ -387,6 +408,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      setor_gerentes: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          gerente_id: string
+          id: string
+          setor_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio: string
+          gerente_id: string
+          id?: string
+          setor_id: string
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          gerente_id?: string
+          id?: string
+          setor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "setor_gerentes_gerente_id_fkey"
+            columns: ["gerente_id"]
+            isOneToOne: false
+            referencedRelation: "gerentes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "setor_gerentes_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       setores: {
         Row: {
