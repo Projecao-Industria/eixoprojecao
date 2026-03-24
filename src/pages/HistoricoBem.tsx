@@ -220,6 +220,16 @@ export default function HistoricoBem() {
     toast.success("Devolução registrada!");
   };
 
+  const handleDeleteEntrega = async (entregaId: string) => {
+    const { error } = await supabase.from("entregas").delete().eq("id", entregaId);
+    if (error) {
+      toast.error("Erro ao excluir registro de entrega");
+      return;
+    }
+    setEntregas(prev => prev.filter(e => e.id !== entregaId));
+    toast.success("Registro de entrega excluído!");
+  };
+
   const isVeiculo = bem?.categoria === "Veículos";
   const isMaquina = bem?.categoria === "Máquinas";
 
