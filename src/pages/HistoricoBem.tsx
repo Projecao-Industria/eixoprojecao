@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save } from "lucide-react";
+import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
   formatCurrency,
@@ -12,6 +12,25 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+interface EntregaDB {
+  id: string;
+  bemId: string;
+  gerenteNome: string;
+  dataEntrega: string;
+  dataDevolucao: string | null;
+}
 
 interface BemDB {
   id: string;
@@ -47,6 +66,7 @@ export default function HistoricoBem() {
   const [bem, setBem] = useState<BemDB | null>(null);
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
+  const [entregas, setEntregas] = useState<EntregaDB[]>([]);
 
   useEffect(() => {
     const fromUrl = searchParams.get("bem");
@@ -55,7 +75,7 @@ export default function HistoricoBem() {
 
   // Fetch bem from Supabase when bemId changes
   useEffect(() => {
-    if (!bemId) { setBem(null); setManutencoes([]); return; }
+    if (!bemId) { setBem(null); setManutencoes([]); setEntregas([]); return; }
 
     const fetchBem = async () => {
       setLoading(true);
@@ -131,6 +151,23 @@ export default function HistoricoBem() {
         }))
       );
 
+      // Fetch entregas
+      const { data: eData } = await supabase
+        .from("entregas")
+        .select("*")
+        .eq("bem_id", bemId)
+        .order("data_entrega", { ascending: false });
+
+      setEntregas(
+        (eData || []).map((e: any) => ({
+          id: e.id,
+          bemId: e.bem_id,
+          gerenteNome: e.gerente_nome,
+          dataEntrega: e.data_entrega,
+          dataDevolucao: e.data_devolucao,
+        }))
+      );
+
       setLoading(false);
     };
 
@@ -163,6 +200,24 @@ export default function HistoricoBem() {
 
     setEditingExtras(false);
     toast.success("Especificações salvas!");
+  };
+
+  const handleDevolucao = async (entregaId: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    const { error } = await supabase
+      .from("entregas")
+      .update({ data_devolucao: today })
+      .eq("id", entregaId);
+
+    if (error) {
+      toast.error("Erro ao registrar devolução");
+      return;
+    }
+
+    setEntregas(prev =>
+      prev.map(e => e.id === entregaId ? { ...e, dataDevolucao: today } : e)
+    );
+    toast.success("Devolução registrada!");
   };
 
   const isVeiculo = bem?.categoria === "Veículos";
@@ -206,6 +261,9 @@ export default function HistoricoBem() {
               </TabsTrigger>
               <TabsTrigger value="manutencoes" className="gap-1.5">
                 <Wrench size={14} /> Manutenções ({manutencoes.length})
+              </TabsTrigger>
+              <TabsTrigger value="entregas" className="gap-1.5">
+                <PackageCheck size={14} /> Entregas ({entregas.length})
               </TabsTrigger>
             </TabsList>
 
@@ -338,6 +396,74 @@ export default function HistoricoBem() {
                   <div className="px-4 py-3 bg-muted/30 border-t border-border flex justify-between text-sm">
                     <span className="text-muted-foreground font-medium">Total de manutenções: {manutencoes.length}</span>
                     <span className="font-semibold">{formatCurrency(manutencoes.reduce((s, m) => s + m.custo, 0))}</span>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="entregas" className="mt-4">
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                {entregas.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <PackageCheck size={32} className="mx-auto mb-2 opacity-50" />
+                    <p>Nenhuma entrega registrada para este bem.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/50">
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Responsável</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data Entrega</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data Devolução</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                          <th className="text-right px-4 py-3 font-medium text-muted-foreground">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {entregas.map((e) => (
+                          <tr key={e.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3 font-medium">{e.gerenteNome}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{formatDate(e.dataEntrega)}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{e.dataDevolucao ? formatDate(e.dataDevolucao) : "—"}</td>
+                            <td className="px-4 py-3">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                                e.dataDevolucao
+                                  ? "bg-muted text-muted-foreground border-border"
+                                  : "bg-accent/15 text-accent border-accent/30"
+                              }`}>
+                                {e.dataDevolucao ? "Devolvido" : "Em posse"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              {!e.dataDevolucao && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="outline" size="sm" className="gap-1">
+                                      <Undo2 size={14} /> Devolução
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
+                                        Confirmar
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>

@@ -157,6 +157,33 @@ export type Database = {
         }
         Relationships: []
       }
+      entregas: {
+        Row: {
+          bem_id: string
+          created_at: string
+          data_devolucao: string | null
+          data_entrega: string
+          gerente_nome: string
+          id: string
+        }
+        Insert: {
+          bem_id: string
+          created_at?: string
+          data_devolucao?: string | null
+          data_entrega: string
+          gerente_nome?: string
+          id?: string
+        }
+        Update: {
+          bem_id?: string
+          created_at?: string
+          data_devolucao?: string | null
+          data_entrega?: string
+          gerente_nome?: string
+          id?: string
+        }
+        Relationships: []
+      }
       gerentes: {
         Row: {
           cpf: string
