@@ -201,6 +201,7 @@ export default function Cadastros() {
     setVinculoDataInicio(undefined);
     setVinculoDataFim(undefined);
     fetchVinculosSetor(vinculoSetorId);
+    fetchGerentesAtuais();
   }
 
   async function removeVinculo(id: string) {
