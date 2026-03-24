@@ -291,7 +291,12 @@ export default function Cadastros() {
           <div className="space-y-1.5">
             {setores.map((s) => (
               <div key={s.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50 group">
-                <span className="text-sm font-medium">{s.nome}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{s.nome}</span>
+                  {gerenteAtualPorSetor[s.id] && (
+                    <span className="text-xs text-muted-foreground">Gerente: {gerenteAtualPorSetor[s.id]}</span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1">
                   <Button variant="ghost" size="sm" className="h-7 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity text-xs gap-1" onClick={() => openVinculo(s)}>
                     <Link2 size={12} /> Gerente
