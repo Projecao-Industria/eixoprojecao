@@ -400,6 +400,74 @@ export default function HistoricoBem() {
                 )}
               </div>
             </TabsContent>
+
+            <TabsContent value="entregas" className="mt-4">
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                {entregas.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <PackageCheck size={32} className="mx-auto mb-2 opacity-50" />
+                    <p>Nenhuma entrega registrada para este bem.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/50">
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Responsável</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data Entrega</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Data Devolução</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                          <th className="text-right px-4 py-3 font-medium text-muted-foreground">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {entregas.map((e) => (
+                          <tr key={e.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3 font-medium">{e.gerenteNome}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{formatDate(e.dataEntrega)}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{e.dataDevolucao ? formatDate(e.dataDevolucao) : "—"}</td>
+                            <td className="px-4 py-3">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                                e.dataDevolucao
+                                  ? "bg-muted text-muted-foreground border-border"
+                                  : "bg-accent/15 text-accent border-accent/30"
+                              }`}>
+                                {e.dataDevolucao ? "Devolvido" : "Em posse"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              {!e.dataDevolucao && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="outline" size="sm" className="gap-1">
+                                      <Undo2 size={14} /> Devolução
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
+                                        Confirmar
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       )}
