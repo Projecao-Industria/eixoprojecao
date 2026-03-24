@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Building2, Tag, UserCheck, Link2, CalendarIcon, X } from "lucide-react";
+import { Plus, Trash2, Building2, Tag, UserCheck, Link2, CalendarIcon, X, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,9 @@ export default function Cadastros() {
   const [novoGerenteNome, setNovoGerenteNome] = useState("");
   const [novoGerenteCpf, setNovoGerenteCpf] = useState("");
 
+  // Current gerente per setor
+  const [gerenteAtualPorSetor, setGerenteAtualPorSetor] = useState<Record<string, string>>({});
+
   // Vincular gerente dialog
   const [vinculoOpen, setVinculoOpen] = useState(false);
   const [vinculoSetorId, setVinculoSetorId] = useState("");
@@ -42,10 +45,15 @@ export default function Cadastros() {
   const [vinculoDataFim, setVinculoDataFim] = useState<Date | undefined>();
   const [vinculosSetor, setVinculosSetor] = useState<SetorGerenteRow[]>([]);
 
+  // Edit data_fim
+  const [editingVinculoId, setEditingVinculoId] = useState<string | null>(null);
+  const [editDataFim, setEditDataFim] = useState<Date | undefined>();
+
   useEffect(() => {
     fetchCategorias();
     fetchSetores();
     fetchGerentes();
+    fetchGerentesAtuais();
   }, []);
 
   async function fetchCategorias() {
@@ -61,6 +69,20 @@ export default function Cadastros() {
   async function fetchGerentes() {
     const { data } = await supabase.from("gerentes").select("id, nome, cpf").order("nome");
     if (data) setGerentes(data);
+  }
+
+  async function fetchGerentesAtuais() {
+    const { data } = await supabase
+      .from("setor_gerentes")
+      .select("setor_id, gerentes(nome)")
+      .is("data_fim", null);
+    if (data) {
+      const map: Record<string, string> = {};
+      for (const v of data as any[]) {
+        map[v.setor_id] = v.gerentes?.nome || "";
+      }
+      setGerenteAtualPorSetor(map);
+    }
   }
 
   async function fetchVinculosSetor(setorId: string) {
@@ -179,11 +201,33 @@ export default function Cadastros() {
     setVinculoDataInicio(undefined);
     setVinculoDataFim(undefined);
     fetchVinculosSetor(vinculoSetorId);
+    fetchGerentesAtuais();
   }
 
   async function removeVinculo(id: string) {
     await supabase.from("setor_gerentes").delete().eq("id", id);
     fetchVinculosSetor(vinculoSetorId);
+    fetchGerentesAtuais();
+  }
+
+  async function updateVinculoDataFim(vinculoId: string) {
+    if (!editDataFim) {
+      toast({ title: "Selecione a data fim", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase
+      .from("setor_gerentes")
+      .update({ data_fim: format(editDataFim, "yyyy-MM-dd") })
+      .eq("id", vinculoId);
+    if (error) {
+      toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+      return;
+    }
+    setEditingVinculoId(null);
+    setEditDataFim(undefined);
+    fetchVinculosSetor(vinculoSetorId);
+    fetchGerentesAtuais();
+    toast({ title: "Data fim atualizada" });
   }
 
   return (
@@ -247,7 +291,12 @@ export default function Cadastros() {
           <div className="space-y-1.5">
             {setores.map((s) => (
               <div key={s.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50 group">
-                <span className="text-sm font-medium">{s.nome}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{s.nome}</span>
+                  {gerenteAtualPorSetor[s.id] && (
+                    <span className="text-xs text-muted-foreground">Gerente: {gerenteAtualPorSetor[s.id]}</span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1">
                   <Button variant="ghost" size="sm" className="h-7 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity text-xs gap-1" onClick={() => openVinculo(s)}>
                     <Link2 size={12} /> Gerente
@@ -364,18 +413,44 @@ export default function Cadastros() {
               <div className="space-y-1.5">
                 <h3 className="text-sm font-medium text-muted-foreground">Histórico de gerentes</h3>
                 {vinculosSetor.map((v) => (
-                  <div key={v.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50 group">
-                    <div className="text-sm">
-                      <span className="font-medium">{(v.gerentes as any)?.nome || "—"}</span>
-                      <span className="text-muted-foreground ml-2 text-xs">
-                        {format(new Date(v.data_inicio + "T00:00:00"), "dd/MM/yyyy")}
-                        {" — "}
-                        {v.data_fim ? format(new Date(v.data_fim + "T00:00:00"), "dd/MM/yyyy") : "Atual"}
-                      </span>
+                  <div key={v.id} className="px-3 py-2 rounded-lg bg-muted/50 group">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <span className="font-medium">{(v.gerentes as any)?.nome || "—"}</span>
+                        <span className="text-muted-foreground ml-2 text-xs">
+                          {format(new Date(v.data_inicio + "T00:00:00"), "dd/MM/yyyy")}
+                          {" — "}
+                          {v.data_fim ? format(new Date(v.data_fim + "T00:00:00"), "dd/MM/yyyy") : "Atual"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {!v.data_fim && (
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity text-xs gap-1" onClick={() => { setEditingVinculoId(v.id); setEditDataFim(undefined); }}>
+                            <Pencil size={12} /> Data Fim
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeVinculo(v.id)}>
+                          <X size={14} />
+                        </Button>
+                      </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeVinculo(v.id)}>
-                      <X size={14} />
-                    </Button>
+                    {editingVinculoId === v.id && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className={cn("text-xs", !editDataFim && "text-muted-foreground")}>
+                              <CalendarIcon className="mr-1 h-3 w-3" />
+                              {editDataFim ? format(editDataFim, "dd/MM/yyyy") : "Selecionar data fim"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={editDataFim} onSelect={setEditDataFim} locale={ptBR} className="p-3 pointer-events-auto" />
+                          </PopoverContent>
+                        </Popover>
+                        <Button size="sm" className="h-7 text-xs" onClick={() => updateVinculoDataFim(v.id)}>Salvar</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setEditingVinculoId(null)}>Cancelar</Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

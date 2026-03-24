@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2 } from "lucide-react";
+import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2, Trash2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
   formatCurrency,
@@ -220,6 +220,16 @@ export default function HistoricoBem() {
     toast.success("Devolução registrada!");
   };
 
+  const handleDeleteEntrega = async (entregaId: string) => {
+    const { error } = await supabase.from("entregas").delete().eq("id", entregaId);
+    if (error) {
+      toast.error("Erro ao excluir registro de entrega");
+      return;
+    }
+    setEntregas(prev => prev.filter(e => e.id !== entregaId));
+    toast.success("Registro de entrega excluído!");
+  };
+
   const isVeiculo = bem?.categoria === "Veículos";
   const isMaquina = bem?.categoria === "Máquinas";
 
@@ -436,29 +446,54 @@ export default function HistoricoBem() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              {!e.dataDevolucao && (
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="outline" size="sm" className="gap-1">
-                                      <Undo2 size={14} /> Devolução
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
-                                        Confirmar
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              )}
+                              <div className="flex items-center justify-end gap-1">
+                                {!e.dataDevolucao && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="outline" size="sm" className="gap-1">
+                                        <Undo2 size={14} /> Devolução
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
+                                          Confirmar
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                                {e.dataDevolucao && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive">
+                                        <Trash2 size={14} />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Excluir Registro de Entrega</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Deseja apagar o registro de entrega? Utilizar apenas para erros de lançamentos.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteEntrega(e.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                          Excluir
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
