@@ -71,6 +71,20 @@ export default function Cadastros() {
     if (data) setGerentes(data);
   }
 
+  async function fetchGerentesAtuais() {
+    const { data } = await supabase
+      .from("setor_gerentes")
+      .select("setor_id, gerentes(nome)")
+      .is("data_fim", null);
+    if (data) {
+      const map: Record<string, string> = {};
+      for (const v of data as any[]) {
+        map[v.setor_id] = v.gerentes?.nome || "";
+      }
+      setGerenteAtualPorSetor(map);
+    }
+  }
+
   async function fetchVinculosSetor(setorId: string) {
     const { data } = await supabase
       .from("setor_gerentes")
