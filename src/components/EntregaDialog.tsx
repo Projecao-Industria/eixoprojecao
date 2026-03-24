@@ -144,29 +144,23 @@ export default function EntregaDialog({ open, onOpenChange, categoriasPermitidas
     const margin = 15;
     let y = 20;
 
-    // Header
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("RUTA INDÚSTRIA E COMÉRCIO LTDA", pageWidth / 2, y, { align: "center" });
-    y += 6;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("07.078.714/0001-61", pageWidth / 2, y, { align: "center" });
-    y += 8;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("DGA INDÚSTRIA E COMÉRCIO LTDA", pageWidth / 2, y, { align: "center" });
-    y += 6;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("CNPJ", pageWidth / 2, y, { align: "center" });
-    y += 10;
-
     // Title
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("ENTREGA DE FERRAMENTAS", pageWidth / 2, y, { align: "center" });
+    doc.text("FICHA DE ENTREGA DE FERRAMENTAS", pageWidth / 2, y, { align: "center" });
     y += 10;
+
+    // Company names side by side
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("RUTA INDÚSTRIA E COMÉRCIO LTDA", margin, y);
+    doc.text("DGA INDÚSTRIA E COMÉRCIO LTDA", pageWidth - margin, y, { align: "right" });
+    y += 5;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("CNPJ: 07.078.714/0001-61", margin, y);
+    doc.text("CNPJ:", pageWidth - margin, y, { align: "right" });
+    y += 8;
 
     // Table
     const tableData = items.map(b => [b.id, b.descricao, b.usuario, b.nfe]);
