@@ -162,6 +162,13 @@ export default function EntregaDialog({ open, onOpenChange, categoriasPermitidas
     doc.text("CNPJ:", pageWidth - margin, y, { align: "right" });
     y += 8;
 
+    // Setor name
+    const setorNome = items.length > 0 ? items[0].setor_nome : "";
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Setor: ${setorNome}`, margin, y);
+    y += 8;
+
     // Table
     const tableData = items.map(b => [b.id, b.descricao, b.usuario, b.nfe]);
 
@@ -176,15 +183,15 @@ export default function EntregaDialog({ open, onOpenChange, categoriasPermitidas
       theme: "grid",
     });
 
-    y = (doc as any).lastAutoTable.finalY + 15;
+    y = (doc as any).lastAutoTable.finalY + 10;
 
     // Declaration text
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    const declaracao = "Declaro que recebi os itens descritos acima e estou ciente de que sou responsável pela guarda, bom uso e devolução dos mesmos nas condições recebidas, salvo desgaste natural decorrente do uso adequado.";
+    const declaracao = "Declaro que, como responsável pelo setor, recebi da empresa os itens acima, comprometendo-me com sua guarda, uso adequado e conservação, responsabilizando-me por qualquer dano, perda ou extravio decorrente de mau uso ou negligência.\nEstou ciente de que, em tais situações, autorizo a empresa a realizar o desconto do valor de reposição ou reparo diretamente conforme regulamento interno.\n\nDeclaro ainda que, caso aplicado, a coluna usuário serve apenas para controle interno de qual colaborador faz mais uso da ferramenta no dia-a-dia, não isentando-me da responsabilidade de zelo dos bens entregues.\n\nComprometo-me ainda a devolver todos os itens nas mesmas condições em que os recebi, salvo desgaste natural decorrente do uso adequado, sempre que solicitado pelos meus superiores.";
     const lines = doc.splitTextToSize(declaracao, pageWidth - margin * 2);
     doc.text(lines, margin, y);
-    y += lines.length * 5 + 10;
+    y += lines.length * 4 + 8;
 
     // Delivery date
     doc.setFontSize(10);
