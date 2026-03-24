@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, Pencil, ArrowDownCircle, RotateCcw, History, Trash2, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   formatCurrency,
@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import CurrencyInput from "@/components/CurrencyInput";
+import EntregaDialog from "@/components/EntregaDialog";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ export default function Patrimonio() {
   const [isEditing, setIsEditing] = useState(false);
   const [showBaixa, setShowBaixa] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [entregaOpen, setEntregaOpen] = useState(false);
 
   const emptyBem: Omit<Bem, "id"> = {
     descricao: "",
@@ -212,10 +214,16 @@ export default function Patrimonio() {
             Gerenciamento de bens da empresa
           </p>
         </div>
-        <Button onClick={openNew} className="gap-2">
-          <Plus size={16} />
-          Novo
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setEntregaOpen(true)} className="gap-2">
+            <Printer size={16} />
+            Imprimir Entrega
+          </Button>
+          <Button onClick={openNew} className="gap-2">
+            <Plus size={16} />
+            Novo
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card rounded-xl border border-border p-4 animate-fade-in">
@@ -541,6 +549,13 @@ export default function Patrimonio() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <EntregaDialog
+        open={entregaOpen}
+        onOpenChange={setEntregaOpen}
+        categoriasPermitidas={categoriasPermitidas}
+        setoresPermitidos={setoresPermitidos}
+      />
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
