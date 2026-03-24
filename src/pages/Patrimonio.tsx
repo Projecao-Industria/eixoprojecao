@@ -550,6 +550,13 @@ export default function Patrimonio() {
         </DialogContent>
       </Dialog>
 
+      <EntregaDialog
+        open={entregaOpen}
+        onOpenChange={setEntregaOpen}
+        categoriasPermitidas={categoriasPermitidas}
+        setoresPermitidos={setoresPermitidos}
+      />
+
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
