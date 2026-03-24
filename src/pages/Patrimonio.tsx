@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import CurrencyInput from "@/components/CurrencyInput";
+import EntregaDialog from "@/components/EntregaDialog";
 
 export default function Patrimonio() {
   const navigate = useNavigate();
