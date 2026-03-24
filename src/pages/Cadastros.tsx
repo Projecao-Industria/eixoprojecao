@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Building2, Tag, UserCheck, Link2, CalendarIcon, X } from "lucide-react";
+import { Plus, Trash2, Building2, Tag, UserCheck, Link2, CalendarIcon, X, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
