@@ -214,10 +214,16 @@ export default function Patrimonio() {
             Gerenciamento de bens da empresa
           </p>
         </div>
-        <Button onClick={openNew} className="gap-2">
-          <Plus size={16} />
-          Novo
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setEntregaOpen(true)} className="gap-2">
+            <Printer size={16} />
+            Imprimir Entrega
+          </Button>
+          <Button onClick={openNew} className="gap-2">
+            <Plus size={16} />
+            Novo
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card rounded-xl border border-border p-4 animate-fade-in">
