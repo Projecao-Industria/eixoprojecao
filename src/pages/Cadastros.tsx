@@ -413,18 +413,44 @@ export default function Cadastros() {
               <div className="space-y-1.5">
                 <h3 className="text-sm font-medium text-muted-foreground">Histórico de gerentes</h3>
                 {vinculosSetor.map((v) => (
-                  <div key={v.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50 group">
-                    <div className="text-sm">
-                      <span className="font-medium">{(v.gerentes as any)?.nome || "—"}</span>
-                      <span className="text-muted-foreground ml-2 text-xs">
-                        {format(new Date(v.data_inicio + "T00:00:00"), "dd/MM/yyyy")}
-                        {" — "}
-                        {v.data_fim ? format(new Date(v.data_fim + "T00:00:00"), "dd/MM/yyyy") : "Atual"}
-                      </span>
+                  <div key={v.id} className="px-3 py-2 rounded-lg bg-muted/50 group">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <span className="font-medium">{(v.gerentes as any)?.nome || "—"}</span>
+                        <span className="text-muted-foreground ml-2 text-xs">
+                          {format(new Date(v.data_inicio + "T00:00:00"), "dd/MM/yyyy")}
+                          {" — "}
+                          {v.data_fim ? format(new Date(v.data_fim + "T00:00:00"), "dd/MM/yyyy") : "Atual"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {!v.data_fim && (
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity text-xs gap-1" onClick={() => { setEditingVinculoId(v.id); setEditDataFim(undefined); }}>
+                            <Pencil size={12} /> Data Fim
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeVinculo(v.id)}>
+                          <X size={14} />
+                        </Button>
+                      </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeVinculo(v.id)}>
-                      <X size={14} />
-                    </Button>
+                    {editingVinculoId === v.id && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className={cn("text-xs", !editDataFim && "text-muted-foreground")}>
+                              <CalendarIcon className="mr-1 h-3 w-3" />
+                              {editDataFim ? format(editDataFim, "dd/MM/yyyy") : "Selecionar data fim"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={editDataFim} onSelect={setEditDataFim} locale={ptBR} className="p-3 pointer-events-auto" />
+                          </PopoverContent>
+                        </Popover>
+                        <Button size="sm" className="h-7 text-xs" onClick={() => updateVinculoDataFim(v.id)}>Salvar</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setEditingVinculoId(null)}>Cancelar</Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
