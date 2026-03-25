@@ -59,6 +59,7 @@ interface ManutencaoDB {
 }
 
 export default function HistoricoBem() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [bemId, setBemId] = useState(searchParams.get("bem") || "");
   const [extraFields, setExtraFields] = useState<Record<string, string>>({});
