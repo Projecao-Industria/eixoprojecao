@@ -234,6 +234,7 @@ export default function ManutencaoPage() {
       custo,
       fornecedor: form.fornecedor,
       nfe_pedido: form.nfePedido,
+      numero_aprovacao: (form as any).numeroAprovacao || "",
       observacoes: form.observacoes,
     };
 
