@@ -61,6 +61,7 @@ export default function Patrimonio() {
         usuario: b.usuario,
         dataCompra: b.data_compra || "",
         nfe: b.nfe,
+        numeroAprovacao: b.numero_aprovacao || "",
         valorCompra: Number(b.valor_compra),
         depreciacaoAnual: b.depreciacao_anual as DepreciacaoAnual,
         valorResidual: 0,
