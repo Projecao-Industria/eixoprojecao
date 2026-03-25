@@ -263,7 +263,7 @@ export default function CalendarioManutencoes() {
                     <tr className="border-b border-border bg-muted/50">
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tipo</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Frequência</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Primeira Data</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Última Data</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Próxima</th>
                       <th className="text-center px-4 py-3 font-medium text-muted-foreground">Ações</th>
                     </tr>
