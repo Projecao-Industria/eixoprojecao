@@ -487,6 +487,7 @@ export default function ManutencaoPage() {
                 value={form.observacoes}
                 onChange={(e) => setForm({ ...form, observacoes: e.target.value })}
                 rows={2}
+                disabled={readOnly}
               />
             </div>
 
@@ -494,9 +495,11 @@ export default function ManutencaoPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-semibold">Itens da Manutenção</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
-                  <Plus size={14} /> Adicionar Item
-                </Button>
+                {!readOnly && (
+                  <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
+                    <Plus size={14} /> Adicionar Item
+                  </Button>
+                )}
               </div>
               {form.itens.length > 0 && (
                 <div className="border border-border rounded-lg overflow-hidden">
@@ -505,7 +508,7 @@ export default function ManutencaoPage() {
                       <tr className="bg-muted/50 border-b border-border">
                         <th className="text-left px-3 py-2 font-medium text-muted-foreground">Descrição</th>
                         <th className="text-right px-3 py-2 font-medium text-muted-foreground w-32">Custo (R$)</th>
-                        <th className="w-10"></th>
+                        {!readOnly && <th className="w-10"></th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -517,6 +520,7 @@ export default function ManutencaoPage() {
                               onChange={(e) => updateItem(idx, "descricao", e.target.value)}
                               className="h-8 text-sm"
                               placeholder="Descrição do item"
+                              disabled={readOnly}
                             />
                           </td>
                           <td className="px-3 py-1.5">
@@ -525,26 +529,29 @@ export default function ManutencaoPage() {
                               value={item.custo || ""}
                               onChange={(e) => updateItem(idx, "custo", Number(e.target.value))}
                               className="h-8 text-sm text-right"
+                              disabled={readOnly}
                             />
                           </td>
-                          <td className="px-1 py-1.5">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(idx)}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </td>
+                          {!readOnly && (
+                            <td className="px-1 py-1.5">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeItem(idx)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                       {form.itens.length > 0 && (
                         <tr className="bg-muted/30">
                           <td className="px-3 py-2 text-right font-medium text-muted-foreground">Total:</td>
                           <td className="px-3 py-2 text-right font-semibold">{formatCurrency(totalItens)}</td>
-                          <td></td>
+                          {!readOnly && <td></td>}
                         </tr>
                       )}
                     </tbody>
@@ -558,6 +565,7 @@ export default function ManutencaoPage() {
                     type="number"
                     value={form.custo || ""}
                     onChange={(e) => setForm({ ...form, custo: Number(e.target.value) })}
+                    disabled={readOnly}
                   />
                 </div>
               )}
