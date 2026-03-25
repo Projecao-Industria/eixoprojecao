@@ -96,6 +96,7 @@ export default function ManutencaoPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Manutencao | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
 
   useEffect(() => {
     fetchAll().then(() => {
