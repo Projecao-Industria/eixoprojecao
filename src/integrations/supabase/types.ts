@@ -34,6 +34,8 @@ export type Database = {
       }
       bem_extras: {
         Row: {
+          ano_fabricacao: string
+          ano_modelo: string
           bem_id: string
           chassi: string
           created_at: string
@@ -45,6 +47,8 @@ export type Database = {
           renavam: string
         }
         Insert: {
+          ano_fabricacao?: string
+          ano_modelo?: string
           bem_id: string
           chassi?: string
           created_at?: string
@@ -56,6 +60,8 @@ export type Database = {
           renavam?: string
         }
         Update: {
+          ano_fabricacao?: string
+          ano_modelo?: string
           bem_id?: string
           chassi?: string
           created_at?: string

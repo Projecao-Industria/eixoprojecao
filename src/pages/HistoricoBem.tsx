@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2, Trash2 } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   formatCurrency,
   formatDate,
@@ -59,6 +59,7 @@ interface ManutencaoDB {
 }
 
 export default function HistoricoBem() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [bemId, setBemId] = useState(searchParams.get("bem") || "");
   const [extraFields, setExtraFields] = useState<Record<string, string>>({});
@@ -126,6 +127,8 @@ export default function HistoricoBem() {
           chassi: extras.chassi || "",
           numSerie: extras.numero_serie || "",
           modelo: extras.modelo || "",
+          anoFabricacao: (extras as any).ano_fabricacao || "",
+          anoModelo: (extras as any).ano_modelo || "",
         });
       } else {
         setExtraFields({});
@@ -184,6 +187,8 @@ export default function HistoricoBem() {
       chassi: extraFields.chassi || "",
       numero_serie: extraFields.numSerie || "",
       modelo: extraFields.modelo || "",
+      ano_fabricacao: extraFields.anoFabricacao || "",
+      ano_modelo: extraFields.anoModelo || "",
     };
 
     const { data: existing } = await supabase
@@ -334,6 +339,8 @@ export default function HistoricoBem() {
                     <div><Label>KM na Data de Compra</Label><Input value={extraFields.kmCompra || ""} onChange={(e) => setExtraFields({ ...extraFields, kmCompra: e.target.value })} placeholder="0" disabled={!editingExtras} /></div>
                     <div><Label>Renavam</Label><Input value={extraFields.renavam || ""} onChange={(e) => setExtraFields({ ...extraFields, renavam: e.target.value })} placeholder="Renavam" disabled={!editingExtras} /></div>
                     <div><Label>Chassi</Label><Input value={extraFields.chassi || ""} onChange={(e) => setExtraFields({ ...extraFields, chassi: e.target.value })} placeholder="Chassi" disabled={!editingExtras} /></div>
+                    <div><Label>Ano Fabricação</Label><Input value={extraFields.anoFabricacao || ""} onChange={(e) => setExtraFields({ ...extraFields, anoFabricacao: e.target.value })} placeholder="2024" disabled={!editingExtras} /></div>
+                    <div><Label>Ano Modelo</Label><Input value={extraFields.anoModelo || ""} onChange={(e) => setExtraFields({ ...extraFields, anoModelo: e.target.value })} placeholder="2025" disabled={!editingExtras} /></div>
                   </div>
                 </div>
               )}
@@ -385,7 +392,7 @@ export default function HistoricoBem() {
                       </thead>
                       <tbody>
                         {manutencoes.map((m) => (
-                          <tr key={m.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                          <tr key={m.id} className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => navigate(`/manutencao?open=${m.id}`)}>
                             <td className="px-4 py-3 font-mono text-xs">#{m.numero}</td>
                             <td className="px-4 py-3 text-muted-foreground">{formatDate(m.data)}</td>
                             <td className="px-4 py-3 font-medium">{m.descricao}</td>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2, Pencil } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
   formatCurrency,
@@ -96,16 +96,27 @@ export default function ManutencaoPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Manutencao | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
 
   useEffect(() => {
-    fetchAll().then(() => {
+    fetchAll().then((allManutencoes) => {
       // Check for URL pre-fill params (from Calendário)
       const prefillBem = searchParams.get("bem");
       const prefillDescricao = searchParams.get("descricao");
       const prefillData = searchParams.get("data");
       const prefillTipo = searchParams.get("tipo");
-      if (prefillBem) {
-        const numero = generateNextManutencaoNumero(manutencoes);
+      const openId = searchParams.get("open");
+      if (openId && allManutencoes) {
+        const found = allManutencoes.find((m) => m.id === openId);
+        if (found) {
+          setEditing(found);
+          setForm({ ...found });
+          setReadOnly(true);
+          setDialogOpen(true);
+        }
+        setSearchParams({}, { replace: true });
+      } else if (prefillBem) {
+        const numero = generateNextManutencaoNumero(allManutencoes || []);
         setForm({
           ...emptyForm,
           numero,
@@ -115,14 +126,14 @@ export default function ManutencaoPage() {
           tipo: (prefillTipo as "Preventiva" | "Corretiva") || "Preventiva",
         });
         setEditing(null);
+        setReadOnly(false);
         setDialogOpen(true);
-        // Clear params
         setSearchParams({}, { replace: true });
       }
     });
   }, []);
 
-  async function fetchAll() {
+  async function fetchAll(): Promise<Manutencao[]> {
     let bensQuery = supabase.from("bens").select("id, descricao, categoria_id").order("id");
     if (categoriasPermitidas) {
       bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
@@ -147,7 +158,7 @@ export default function ManutencaoPage() {
       manQuery = manQuery.in("bem_id", allowedBemIds);
     } else if (categoriasPermitidas && allowedBemIds.length === 0) {
       setManutencoes([]);
-      return;
+      return [];
     }
     const manRes = await manQuery;
     if (bensRes.data) {
@@ -177,7 +188,9 @@ export default function ManutencaoPage() {
         })),
       }));
       setManutencoes(mapped);
+      return mapped;
     }
+    return [];
   }
 
   const emptyForm: Omit<Manutencao, "id"> = {
@@ -210,6 +223,7 @@ export default function ManutencaoPage() {
 
   function openNew() {
     setEditing(null);
+    setReadOnly(false);
     const numero = generateNextManutencaoNumero(manutencoes);
     setForm({ ...emptyForm, numero });
     setDialogOpen(true);
@@ -218,6 +232,7 @@ export default function ManutencaoPage() {
   function openEdit(m: Manutencao) {
     setEditing(m);
     setForm({ ...m });
+    setReadOnly(true);
     setDialogOpen(true);
   }
 
@@ -383,24 +398,36 @@ export default function ManutencaoPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display">
-              {editing ? `Manutenção #${editing.numero}` : `Nova Manutenção #${form.numero}`}
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="font-display">
+                {editing ? `Manutenção #${editing.numero}` : `Nova Manutenção #${form.numero}`}
+              </DialogTitle>
+              {editing && readOnly && (
+                <Button variant="outline" size="sm" className="gap-1" onClick={() => setReadOnly(false)}>
+                  <Pencil size={14} /> Editar
+                </Button>
+              )}
+            </div>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div>
               <Label>Bem</Label>
-              <BemSearchSelect
-                value={form.bemId}
-                onChange={(v) => setForm({ ...form, bemId: v })}
-                bens={bensDB}
-              />
+              {readOnly ? (
+                <Input value={bensDB.find(b => b.id === form.bemId) ? `#${form.bemId} - ${bensDB.find(b => b.id === form.bemId)?.descricao}` : form.bemId} disabled />
+              ) : (
+                <BemSearchSelect
+                  value={form.bemId}
+                  onChange={(v) => setForm({ ...form, bemId: v })}
+                  bens={bensDB}
+                />
+              )}
             </div>
             <div>
               <Label>Descrição</Label>
               <Input
                 value={form.descricao}
                 onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+                disabled={readOnly}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -410,6 +437,7 @@ export default function ManutencaoPage() {
                   type="date"
                   value={form.data}
                   onChange={(e) => setForm({ ...form, data: e.target.value })}
+                  disabled={readOnly}
                 />
               </div>
               <div>
@@ -417,6 +445,7 @@ export default function ManutencaoPage() {
                 <Select
                   value={form.tipo}
                   onValueChange={(v) => setForm({ ...form, tipo: v })}
+                  disabled={readOnly}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -431,21 +460,26 @@ export default function ManutencaoPage() {
               <Input
                 value={form.fornecedor}
                 onChange={(e) => setForm({ ...form, fornecedor: e.target.value })}
+                disabled={readOnly}
               />
             </div>
-            <div>
-              <Label>NFe ou Número Pedido</Label>
-              <Input
-                value={form.nfePedido}
-                onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Número Aprovação</Label>
-              <Input
-                value={(form as any).numeroAprovacao || ""}
-                onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>NFe ou Número Pedido</Label>
+                <Input
+                  value={form.nfePedido}
+                  onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
+                  disabled={readOnly}
+                />
+              </div>
+              <div>
+                <Label>Número Aprovação</Label>
+                <Input
+                  value={(form as any).numeroAprovacao || ""}
+                  onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
+                  disabled={readOnly}
+                />
+              </div>
             </div>
             <div>
               <Label>Observações</Label>
@@ -453,6 +487,7 @@ export default function ManutencaoPage() {
                 value={form.observacoes}
                 onChange={(e) => setForm({ ...form, observacoes: e.target.value })}
                 rows={2}
+                disabled={readOnly}
               />
             </div>
 
@@ -460,9 +495,11 @@ export default function ManutencaoPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-semibold">Itens da Manutenção</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
-                  <Plus size={14} /> Adicionar Item
-                </Button>
+                {!readOnly && (
+                  <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
+                    <Plus size={14} /> Adicionar Item
+                  </Button>
+                )}
               </div>
               {form.itens.length > 0 && (
                 <div className="border border-border rounded-lg overflow-hidden">
@@ -471,7 +508,7 @@ export default function ManutencaoPage() {
                       <tr className="bg-muted/50 border-b border-border">
                         <th className="text-left px-3 py-2 font-medium text-muted-foreground">Descrição</th>
                         <th className="text-right px-3 py-2 font-medium text-muted-foreground w-32">Custo (R$)</th>
-                        <th className="w-10"></th>
+                        {!readOnly && <th className="w-10"></th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -483,6 +520,7 @@ export default function ManutencaoPage() {
                               onChange={(e) => updateItem(idx, "descricao", e.target.value)}
                               className="h-8 text-sm"
                               placeholder="Descrição do item"
+                              disabled={readOnly}
                             />
                           </td>
                           <td className="px-3 py-1.5">
@@ -491,26 +529,29 @@ export default function ManutencaoPage() {
                               value={item.custo || ""}
                               onChange={(e) => updateItem(idx, "custo", Number(e.target.value))}
                               className="h-8 text-sm text-right"
+                              disabled={readOnly}
                             />
                           </td>
-                          <td className="px-1 py-1.5">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(idx)}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </td>
+                          {!readOnly && (
+                            <td className="px-1 py-1.5">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeItem(idx)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                       {form.itens.length > 0 && (
                         <tr className="bg-muted/30">
                           <td className="px-3 py-2 text-right font-medium text-muted-foreground">Total:</td>
                           <td className="px-3 py-2 text-right font-semibold">{formatCurrency(totalItens)}</td>
-                          <td></td>
+                          {!readOnly && <td></td>}
                         </tr>
                       )}
                     </tbody>
@@ -524,30 +565,33 @@ export default function ManutencaoPage() {
                     type="number"
                     value={form.custo || ""}
                     onChange={(e) => setForm({ ...form, custo: Number(e.target.value) })}
+                    disabled={readOnly}
                   />
                 </div>
               )}
             </div>
 
-            <div className="flex justify-between pt-2">
-              <div>
-                {editing && (
-                  <Button
-                    variant="ghost"
-                    className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => setDeleteConfirmOpen(true)}
-                  >
-                    <Trash2 size={14} /> Excluir
+            {!readOnly && (
+              <div className="flex justify-between pt-2">
+                <div>
+                  {editing && (
+                    <Button
+                      variant="ghost"
+                      className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                    >
+                      <Trash2 size={14} /> Excluir
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancelar
                   </Button>
-                )}
+                  <Button onClick={handleSave}>Salvar</Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSave}>Salvar</Button>
-              </div>
-            </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

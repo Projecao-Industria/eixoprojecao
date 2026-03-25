@@ -34,7 +34,7 @@ export default function Patrimonio() {
 
   useEffect(() => {
     fetchAll();
-  }, []);
+  }, [categoriasPermitidas, setoresPermitidos]);
 
   async function fetchAll() {
     const [catRes, setRes] = await Promise.all([
