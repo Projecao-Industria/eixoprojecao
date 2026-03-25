@@ -571,25 +571,27 @@ export default function ManutencaoPage() {
               )}
             </div>
 
-            <div className="flex justify-between pt-2">
-              <div>
-                {editing && (
-                  <Button
-                    variant="ghost"
-                    className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => setDeleteConfirmOpen(true)}
-                  >
-                    <Trash2 size={14} /> Excluir
+            {!readOnly && (
+              <div className="flex justify-between pt-2">
+                <div>
+                  {editing && (
+                    <Button
+                      variant="ghost"
+                      className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                    >
+                      <Trash2 size={14} /> Excluir
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancelar
                   </Button>
-                )}
+                  <Button onClick={handleSave}>Salvar</Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSave}>Salvar</Button>
-              </div>
-            </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
