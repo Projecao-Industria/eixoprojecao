@@ -431,21 +431,26 @@ export default function ManutencaoPage() {
               <Input
                 value={form.fornecedor}
                 onChange={(e) => setForm({ ...form, fornecedor: e.target.value })}
+                disabled={readOnly}
               />
             </div>
-            <div>
-              <Label>NFe ou Número Pedido</Label>
-              <Input
-                value={form.nfePedido}
-                onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Número Aprovação</Label>
-              <Input
-                value={(form as any).numeroAprovacao || ""}
-                onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>NFe ou Número Pedido</Label>
+                <Input
+                  value={form.nfePedido}
+                  onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
+                  disabled={readOnly}
+                />
+              </div>
+              <div>
+                <Label>Número Aprovação</Label>
+                <Input
+                  value={(form as any).numeroAprovacao || ""}
+                  onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
+                  disabled={readOnly}
+                />
+              </div>
             </div>
             <div>
               <Label>Observações</Label>
