@@ -219,6 +219,7 @@ export default function ManutencaoPage() {
   function openEdit(m: Manutencao) {
     setEditing(m);
     setForm({ ...m });
+    setReadOnly(true);
     setDialogOpen(true);
   }
 
