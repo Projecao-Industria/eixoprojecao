@@ -392,7 +392,7 @@ export default function HistoricoBem() {
                       </thead>
                       <tbody>
                         {manutencoes.map((m) => (
-                          <tr key={m.id} className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => window.location.href = `/manutencao?open=${m.id}`}>
+                          <tr key={m.id} className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => navigate(`/manutencao?open=${m.id}`)}>
                             <td className="px-4 py-3 font-mono text-xs">#{m.numero}</td>
                             <td className="px-4 py-3 text-muted-foreground">{formatDate(m.data)}</td>
                             <td className="px-4 py-3 font-medium">{m.descricao}</td>
