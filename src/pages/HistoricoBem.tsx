@@ -334,6 +334,8 @@ export default function HistoricoBem() {
                     <div><Label>KM na Data de Compra</Label><Input value={extraFields.kmCompra || ""} onChange={(e) => setExtraFields({ ...extraFields, kmCompra: e.target.value })} placeholder="0" disabled={!editingExtras} /></div>
                     <div><Label>Renavam</Label><Input value={extraFields.renavam || ""} onChange={(e) => setExtraFields({ ...extraFields, renavam: e.target.value })} placeholder="Renavam" disabled={!editingExtras} /></div>
                     <div><Label>Chassi</Label><Input value={extraFields.chassi || ""} onChange={(e) => setExtraFields({ ...extraFields, chassi: e.target.value })} placeholder="Chassi" disabled={!editingExtras} /></div>
+                    <div><Label>Ano Fabricação</Label><Input value={extraFields.anoFabricacao || ""} onChange={(e) => setExtraFields({ ...extraFields, anoFabricacao: e.target.value })} placeholder="2024" disabled={!editingExtras} /></div>
+                    <div><Label>Ano Modelo</Label><Input value={extraFields.anoModelo || ""} onChange={(e) => setExtraFields({ ...extraFields, anoModelo: e.target.value })} placeholder="2025" disabled={!editingExtras} /></div>
                   </div>
                 </div>
               )}
