@@ -136,7 +136,7 @@ export default function ManutencaoPage() {
     if (bensRes.data) {
       setBensDB(bensRes.data.map((b: any) => ({
         id: b.id, descricao: b.descricao, categoria: "" as any, setor: "" as any,
-        usuario: "", dataCompra: "", nfe: "", valorCompra: 0, depreciacaoAnual: 10,
+        usuario: "", dataCompra: "", nfe: "", numeroAprovacao: "", valorCompra: 0, depreciacaoAnual: 10,
         valorResidual: 0, dataBaixa: null, motivoBaixa: "", status: "Ativo" as any,
       })));
       allowedBemIds.push(...bensRes.data.map((b: any) => b.id));
