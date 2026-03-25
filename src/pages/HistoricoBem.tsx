@@ -186,6 +186,8 @@ export default function HistoricoBem() {
       chassi: extraFields.chassi || "",
       numero_serie: extraFields.numSerie || "",
       modelo: extraFields.modelo || "",
+      ano_fabricacao: extraFields.anoFabricacao || "",
+      ano_modelo: extraFields.anoModelo || "",
     };
 
     const { data: existing } = await supabase
