@@ -491,6 +491,14 @@ export default function Patrimonio() {
                 />
               </div>
             </div>
+            <div>
+              <Label>Número Aprovação</Label>
+              <Input
+                value={(form as any).numeroAprovacao || ""}
+                onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
+                disabled={isViewMode}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Data Compra</Label>
