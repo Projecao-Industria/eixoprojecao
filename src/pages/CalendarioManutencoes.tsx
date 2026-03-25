@@ -237,7 +237,7 @@ export default function CalendarioManutencoes() {
                 </Select>
               </div>
               <div>
-                <Label>Primeira vez realizada</Label>
+                <Label>Última vez realizada</Label>
                 <Input
                   type="date"
                   value={formPrimeiraData}
