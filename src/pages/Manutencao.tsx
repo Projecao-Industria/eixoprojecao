@@ -188,7 +188,9 @@ export default function ManutencaoPage() {
         })),
       }));
       setManutencoes(mapped);
+      return mapped;
     }
+    return [];
   }
 
   const emptyForm: Omit<Manutencao, "id"> = {
