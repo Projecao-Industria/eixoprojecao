@@ -50,6 +50,7 @@ export interface Bem {
   usuario: string;
   dataCompra: string;
   nfe: string;
+  numeroAprovacao: string;
   valorCompra: number;
   depreciacaoAnual: DepreciacaoAnual;
   valorResidual: number;
