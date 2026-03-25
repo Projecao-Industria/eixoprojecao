@@ -133,7 +133,7 @@ export default function ManutencaoPage() {
     });
   }, []);
 
-  async function fetchAll() {
+  async function fetchAll(): Promise<Manutencao[]> {
     let bensQuery = supabase.from("bens").select("id, descricao, categoria_id").order("id");
     if (categoriasPermitidas) {
       bensQuery = bensQuery.in("categoria_id", categoriasPermitidas);
