@@ -136,7 +136,7 @@ export default function ManutencaoPage() {
     if (bensRes.data) {
       setBensDB(bensRes.data.map((b: any) => ({
         id: b.id, descricao: b.descricao, categoria: "" as any, setor: "" as any,
-        usuario: "", dataCompra: "", nfe: "", valorCompra: 0, depreciacaoAnual: 10,
+        usuario: "", dataCompra: "", nfe: "", numeroAprovacao: "", valorCompra: 0, depreciacaoAnual: 10,
         valorResidual: 0, dataBaixa: null, motivoBaixa: "", status: "Ativo" as any,
       })));
       allowedBemIds.push(...bensRes.data.map((b: any) => b.id));
@@ -153,7 +153,7 @@ export default function ManutencaoPage() {
     if (bensRes.data) {
       setBensDB(bensRes.data.map((b: any) => ({
         id: b.id, descricao: b.descricao, categoria: "" as any, setor: "" as any,
-        usuario: "", dataCompra: "", nfe: "", valorCompra: 0, depreciacaoAnual: 10,
+        usuario: "", dataCompra: "", nfe: "", numeroAprovacao: "", valorCompra: 0, depreciacaoAnual: 10,
         valorResidual: 0, dataBaixa: null, motivoBaixa: "", status: "Ativo" as any,
       })));
     }
@@ -168,6 +168,7 @@ export default function ManutencaoPage() {
         custo: Number(m.custo),
         fornecedor: m.fornecedor,
         nfePedido: m.nfe_pedido || "",
+        numeroAprovacao: m.numero_aprovacao || "",
         observacoes: m.observacoes,
         itens: (m.manutencao_itens || []).map((i: any) => ({
           id: i.id,
@@ -188,6 +189,7 @@ export default function ManutencaoPage() {
     custo: 0,
     fornecedor: "",
     nfePedido: "",
+    numeroAprovacao: "",
     observacoes: "",
     itens: [],
   };
@@ -232,6 +234,7 @@ export default function ManutencaoPage() {
       custo,
       fornecedor: form.fornecedor,
       nfe_pedido: form.nfePedido,
+      numero_aprovacao: (form as any).numeroAprovacao || "",
       observacoes: form.observacoes,
     };
 
@@ -435,6 +438,13 @@ export default function ManutencaoPage() {
               <Input
                 value={form.nfePedido}
                 onChange={(e) => setForm({ ...form, nfePedido: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Número Aprovação</Label>
+              <Input
+                value={(form as any).numeroAprovacao || ""}
+                onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
               />
             </div>
             <div>

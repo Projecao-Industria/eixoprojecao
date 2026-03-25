@@ -61,6 +61,7 @@ export default function Patrimonio() {
         usuario: b.usuario,
         dataCompra: b.data_compra || "",
         nfe: b.nfe,
+        numeroAprovacao: b.numero_aprovacao || "",
         valorCompra: Number(b.valor_compra),
         depreciacaoAnual: b.depreciacao_anual as DepreciacaoAnual,
         valorResidual: 0,
@@ -90,6 +91,7 @@ export default function Patrimonio() {
     usuario: "",
     dataCompra: "",
     nfe: "",
+    numeroAprovacao: "",
     valorCompra: 0,
     depreciacaoAnual: 10,
     valorResidual: 0,
@@ -140,6 +142,7 @@ export default function Patrimonio() {
       usuario: form.usuario,
       data_compra: form.dataCompra,
       nfe: form.nfe,
+      numero_aprovacao: (form as any).numeroAprovacao || "",
       valor_compra: form.valorCompra,
       depreciacao_anual: form.depreciacaoAnual,
       motivo_baixa: form.motivoBaixa,
@@ -490,6 +493,14 @@ export default function Patrimonio() {
                   disabled={isViewMode}
                 />
               </div>
+            </div>
+            <div>
+              <Label>Número Aprovação</Label>
+              <Input
+                value={(form as any).numeroAprovacao || ""}
+                onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
+                disabled={isViewMode}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

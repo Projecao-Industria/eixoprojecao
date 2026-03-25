@@ -50,6 +50,7 @@ export interface Bem {
   usuario: string;
   dataCompra: string;
   nfe: string;
+  numeroAprovacao: string;
   valorCompra: number;
   depreciacaoAnual: DepreciacaoAnual;
   valorResidual: number;
@@ -74,6 +75,7 @@ export interface Manutencao {
   custo: number;
   fornecedor: string;
   nfePedido: string;
+  numeroAprovacao: string;
   observacoes: string;
   itens: ManutencaoItem[];
 }
