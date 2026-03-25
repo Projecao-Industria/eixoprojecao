@@ -396,24 +396,36 @@ export default function ManutencaoPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display">
-              {editing ? `Manutenção #${editing.numero}` : `Nova Manutenção #${form.numero}`}
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="font-display">
+                {editing ? `Manutenção #${editing.numero}` : `Nova Manutenção #${form.numero}`}
+              </DialogTitle>
+              {editing && readOnly && (
+                <Button variant="outline" size="sm" className="gap-1" onClick={() => setReadOnly(false)}>
+                  <Pencil size={14} /> Editar
+                </Button>
+              )}
+            </div>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div>
               <Label>Bem</Label>
-              <BemSearchSelect
-                value={form.bemId}
-                onChange={(v) => setForm({ ...form, bemId: v })}
-                bens={bensDB}
-              />
+              {readOnly ? (
+                <Input value={bensDB.find(b => b.id === form.bemId) ? `#${form.bemId} - ${bensDB.find(b => b.id === form.bemId)?.descricao}` : form.bemId} disabled />
+              ) : (
+                <BemSearchSelect
+                  value={form.bemId}
+                  onChange={(v) => setForm({ ...form, bemId: v })}
+                  bens={bensDB}
+                />
+              )}
             </div>
             <div>
               <Label>Descrição</Label>
               <Input
                 value={form.descricao}
                 onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+                disabled={readOnly}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -423,6 +435,7 @@ export default function ManutencaoPage() {
                   type="date"
                   value={form.data}
                   onChange={(e) => setForm({ ...form, data: e.target.value })}
+                  disabled={readOnly}
                 />
               </div>
               <div>
@@ -430,6 +443,7 @@ export default function ManutencaoPage() {
                 <Select
                   value={form.tipo}
                   onValueChange={(v) => setForm({ ...form, tipo: v })}
+                  disabled={readOnly}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
