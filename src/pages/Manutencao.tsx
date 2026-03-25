@@ -168,6 +168,7 @@ export default function ManutencaoPage() {
         custo: Number(m.custo),
         fornecedor: m.fornecedor,
         nfePedido: m.nfe_pedido || "",
+        numeroAprovacao: m.numero_aprovacao || "",
         observacoes: m.observacoes,
         itens: (m.manutencao_itens || []).map((i: any) => ({
           id: i.id,
