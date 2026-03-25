@@ -87,6 +87,7 @@ export type Database = {
           id: string
           motivo_baixa: string
           nfe: string
+          numero_aprovacao: string
           setor_id: string
           status: Database["public"]["Enums"]["status_bem"]
           usuario: string
@@ -102,6 +103,7 @@ export type Database = {
           id: string
           motivo_baixa?: string
           nfe?: string
+          numero_aprovacao?: string
           setor_id: string
           status?: Database["public"]["Enums"]["status_bem"]
           usuario?: string
@@ -117,6 +119,7 @@ export type Database = {
           id?: string
           motivo_baixa?: string
           nfe?: string
+          numero_aprovacao?: string
           setor_id?: string
           status?: Database["public"]["Enums"]["status_bem"]
           usuario?: string
@@ -280,6 +283,7 @@ export type Database = {
           id: string
           nfe_pedido: string
           numero: string
+          numero_aprovacao: string
           observacoes: string
           tipo: Database["public"]["Enums"]["tipo_manutencao"]
         }
@@ -293,6 +297,7 @@ export type Database = {
           id?: string
           nfe_pedido?: string
           numero: string
+          numero_aprovacao?: string
           observacoes?: string
           tipo?: Database["public"]["Enums"]["tipo_manutencao"]
         }
@@ -306,6 +311,7 @@ export type Database = {
           id?: string
           nfe_pedido?: string
           numero?: string
+          numero_aprovacao?: string
           observacoes?: string
           tipo?: Database["public"]["Enums"]["tipo_manutencao"]
         }

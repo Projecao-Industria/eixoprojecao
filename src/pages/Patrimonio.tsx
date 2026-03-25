@@ -142,6 +142,7 @@ export default function Patrimonio() {
       usuario: form.usuario,
       data_compra: form.dataCompra,
       nfe: form.nfe,
+      numero_aprovacao: (form as any).numeroAprovacao || "",
       valor_compra: form.valorCompra,
       depreciacao_anual: form.depreciacaoAnual,
       motivo_baixa: form.motivoBaixa,

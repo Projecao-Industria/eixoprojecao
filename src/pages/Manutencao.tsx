@@ -441,6 +441,13 @@ export default function ManutencaoPage() {
               />
             </div>
             <div>
+              <Label>Número Aprovação</Label>
+              <Input
+                value={(form as any).numeroAprovacao || ""}
+                onChange={(e) => setForm({ ...form, numeroAprovacao: e.target.value } as any)}
+              />
+            </div>
+            <div>
               <Label>Observações</Label>
               <Textarea
                 value={form.observacoes}
