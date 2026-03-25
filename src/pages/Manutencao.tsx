@@ -211,6 +211,7 @@ export default function ManutencaoPage() {
 
   function openNew() {
     setEditing(null);
+    setReadOnly(false);
     const numero = generateNextManutencaoNumero(manutencoes);
     setForm({ ...emptyForm, numero });
     setDialogOpen(true);
