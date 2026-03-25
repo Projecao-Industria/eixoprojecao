@@ -158,7 +158,7 @@ export default function ManutencaoPage() {
       manQuery = manQuery.in("bem_id", allowedBemIds);
     } else if (categoriasPermitidas && allowedBemIds.length === 0) {
       setManutencoes([]);
-      return;
+      return [];
     }
     const manRes = await manQuery;
     if (bensRes.data) {
