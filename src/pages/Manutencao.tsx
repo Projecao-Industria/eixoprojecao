@@ -188,6 +188,7 @@ export default function ManutencaoPage() {
     custo: 0,
     fornecedor: "",
     nfePedido: "",
+    numeroAprovacao: "",
     observacoes: "",
     itens: [],
   };
