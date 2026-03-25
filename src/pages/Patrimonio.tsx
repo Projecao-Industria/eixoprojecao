@@ -90,6 +90,7 @@ export default function Patrimonio() {
     usuario: "",
     dataCompra: "",
     nfe: "",
+    numeroAprovacao: "",
     valorCompra: 0,
     depreciacaoAnual: 10,
     valorResidual: 0,
