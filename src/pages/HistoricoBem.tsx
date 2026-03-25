@@ -126,6 +126,8 @@ export default function HistoricoBem() {
           chassi: extras.chassi || "",
           numSerie: extras.numero_serie || "",
           modelo: extras.modelo || "",
+          anoFabricacao: (extras as any).ano_fabricacao || "",
+          anoModelo: (extras as any).ano_modelo || "",
         });
       } else {
         setExtraFields({});
