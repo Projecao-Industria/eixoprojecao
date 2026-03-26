@@ -23,7 +23,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import DevolucaoDialog from "@/components/DevolucaoDialog";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface EntregaDB {
   id: string;
@@ -69,10 +70,7 @@ export default function HistoricoBem() {
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
   const [entregas, setEntregas] = useState<EntregaDB[]>([]);
-  const [devolucaoDialogOpen, setDevolucaoDialogOpen] = useState(false);
-  const [devolucaoPreSelectedId, setDevolucaoPreSelectedId] = useState<string | null>(null);
-  const [returnChoiceOpen, setReturnChoiceOpen] = useState(false);
-  const [returnChoiceEntregaId, setReturnChoiceEntregaId] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fromUrl = searchParams.get("bem");
@@ -240,56 +238,79 @@ export default function HistoricoBem() {
     toast.success("Registro de entrega excluído!");
   };
 
-  const handlePrintEntrega = (entrega: EntregaDB) => {
-    if (!entrega.dataDevolucao) {
-      // Item still in possession - show choice: single or batch
-      setReturnChoiceEntregaId(entrega.id);
-      setReturnChoiceOpen(true);
-    }
-  };
+  const handlePrintDevolucao = (entrega: EntregaDB) => {
+    if (!bem || !entrega.dataDevolucao) return;
 
-  const handleSingleReturn = async () => {
-    if (!returnChoiceEntregaId) return;
-    const today = new Date().toISOString().split("T")[0];
-    const { error } = await supabase
-      .from("entregas")
-      .update({ data_devolucao: today })
-      .eq("id", returnChoiceEntregaId);
-    if (error) {
-      toast.error("Erro ao registrar devolução");
-    } else {
-      setEntregas(prev =>
-        prev.map(e => e.id === returnChoiceEntregaId ? { ...e, dataDevolucao: today } : e)
-      );
-      toast.success("Devolução registrada!");
-    }
-    setReturnChoiceOpen(false);
-    setReturnChoiceEntregaId(null);
-  };
+    const doc = new jsPDF("p", "mm", "a4");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    let y = 20;
 
-  const handleBatchReturn = () => {
-    setReturnChoiceOpen(false);
-    setDevolucaoPreSelectedId(returnChoiceEntregaId);
-    setDevolucaoDialogOpen(true);
-    setReturnChoiceEntregaId(null);
-  };
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("FICHA DE DEVOLUÇÃO DE FERRAMENTAS", pageWidth / 2, y, { align: "center" });
+    y += 10;
 
-  const refreshEntregas = async () => {
-    if (!bemId) return;
-    const { data: eData } = await supabase
-      .from("entregas")
-      .select("*")
-      .eq("bem_id", bemId)
-      .order("data_entrega", { ascending: false });
-    setEntregas(
-      (eData || []).map((e: any) => ({
-        id: e.id,
-        bemId: e.bem_id,
-        gerenteNome: e.gerente_nome,
-        dataEntrega: e.data_entrega,
-        dataDevolucao: e.data_devolucao,
-      }))
-    );
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("RUTA INDÚSTRIA E COMÉRCIO LTDA", margin, y);
+    doc.text("DGA INDÚSTRIA E COMÉRCIO LTDA", pageWidth - margin, y, { align: "right" });
+    y += 5;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("CNPJ: 07.078.714/0001-61", margin, y);
+    doc.text("CNPJ:", pageWidth - margin, y, { align: "right" });
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Setor: ${bem.setor}`, margin, y);
+    y += 8;
+
+    autoTable(doc, {
+      startY: y,
+      head: [["Código", "Nome do Bem", "Usuário", "NFe"]],
+      body: [[bem.id, bem.descricao, bem.usuario, bem.nfe]],
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [41, 98, 166], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [240, 245, 250] },
+      theme: "grid",
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 10;
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    const declaracao = "Declaro que os itens acima listados foram devolvidos à empresa nas condições informadas, ficando a empresa responsável por sua conferência e guarda a partir desta data.";
+    const lines = doc.splitTextToSize(declaracao, pageWidth - margin * 2);
+    doc.text(lines, margin, y);
+    y += lines.length * 4 + 8;
+
+    doc.setFontSize(10);
+    doc.text(`Data de Devolução: ${formatDate(entrega.dataDevolucao)}`, margin, y);
+    y += 20;
+
+    const gerenteNome = entrega.gerenteNome || "___________________________";
+    const sigWidth = (pageWidth - margin * 2 - 20) / 3;
+    const sigY = y;
+
+    doc.line(margin, sigY, margin + sigWidth, sigY);
+    doc.setFontSize(8);
+    doc.text("Assinatura Responsável", margin, sigY + 5);
+    doc.setFont("helvetica", "bold");
+    doc.text(gerenteNome, margin, sigY + 10);
+
+    const sig2X = margin + sigWidth + 10;
+    doc.line(sig2X, sigY, sig2X + sigWidth, sigY);
+    doc.setFont("helvetica", "normal");
+    doc.text("Resp. Manutenção e Patrimônio", sig2X, sigY + 5);
+
+    const sig3X = sig2X + sigWidth + 10;
+    doc.line(sig3X, sigY, sig3X + sigWidth, sigY);
+    doc.text("Resp. pela Empresa", sig3X, sigY + 5);
+
+    doc.save(`devolucao_ferramenta_${bem.id}_${entrega.dataDevolucao}.pdf`);
   };
 
   const isVeiculo = bem?.categoria === "Veículos";
@@ -512,35 +533,33 @@ export default function HistoricoBem() {
                             <td className="px-4 py-3 text-right">
                               <div className="flex items-center justify-end gap-1">
                                 {!e.dataDevolucao && (
-                                  <>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="sm" className="gap-1">
-                                          <Undo2 size={14} /> Devolução
-                                        </Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
-                                            Confirmar
-                                          </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handlePrintEntrega(e)}>
-                                      <Printer size={14} />
-                                    </Button>
-                                  </>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="outline" size="sm" className="gap-1">
+                                        <Undo2 size={14} /> Devolução
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
+                                          Confirmar
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
                                 )}
                                 {e.dataDevolucao && (
                                   <>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handlePrintDevolucao(e)}>
+                                      <Printer size={14} />
+                                    </Button>
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive">
@@ -578,33 +597,8 @@ export default function HistoricoBem() {
         </div>
       )}
 
-      {/* Choice dialog: single or batch return */}
-      <AlertDialog open={returnChoiceOpen} onOpenChange={setReturnChoiceOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Como deseja devolver?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Deseja devolver apenas este item ou devolver em lote (selecionar vários itens)?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSingleReturn}>
-              Apenas este item
-            </AlertDialogAction>
-            <AlertDialogAction onClick={handleBatchReturn}>
-              Devolver em lote
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
-      <DevolucaoDialog
-        open={devolucaoDialogOpen}
-        onOpenChange={setDevolucaoDialogOpen}
-        preSelectedEntregaId={devolucaoPreSelectedId}
-        onDevolucaoComplete={refreshEntregas}
-      />
+
     </div>
   );
 }
