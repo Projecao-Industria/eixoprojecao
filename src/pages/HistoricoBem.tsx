@@ -239,6 +239,58 @@ export default function HistoricoBem() {
     toast.success("Registro de entrega excluído!");
   };
 
+  const handlePrintEntrega = (entrega: EntregaDB) => {
+    if (!entrega.dataDevolucao) {
+      // Item still in possession - show choice: single or batch
+      setReturnChoiceEntregaId(entrega.id);
+      setReturnChoiceOpen(true);
+    }
+  };
+
+  const handleSingleReturn = async () => {
+    if (!returnChoiceEntregaId) return;
+    const today = new Date().toISOString().split("T")[0];
+    const { error } = await supabase
+      .from("entregas")
+      .update({ data_devolucao: today })
+      .eq("id", returnChoiceEntregaId);
+    if (error) {
+      toast.error("Erro ao registrar devolução");
+    } else {
+      setEntregas(prev =>
+        prev.map(e => e.id === returnChoiceEntregaId ? { ...e, dataDevolucao: today } : e)
+      );
+      toast.success("Devolução registrada!");
+    }
+    setReturnChoiceOpen(false);
+    setReturnChoiceEntregaId(null);
+  };
+
+  const handleBatchReturn = () => {
+    setReturnChoiceOpen(false);
+    setDevolucaoPreSelectedId(returnChoiceEntregaId);
+    setDevolucaoDialogOpen(true);
+    setReturnChoiceEntregaId(null);
+  };
+
+  const refreshEntregas = async () => {
+    if (!bemId) return;
+    const { data: eData } = await supabase
+      .from("entregas")
+      .select("*")
+      .eq("bem_id", bemId)
+      .order("data_entrega", { ascending: false });
+    setEntregas(
+      (eData || []).map((e: any) => ({
+        id: e.id,
+        bemId: e.bem_id,
+        gerenteNome: e.gerente_nome,
+        dataEntrega: e.data_entrega,
+        dataDevolucao: e.data_devolucao,
+      }))
+    );
+  };
+
   const isVeiculo = bem?.categoria === "Veículos";
   const isMaquina = bem?.categoria === "Máquinas";
 
