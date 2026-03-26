@@ -599,33 +599,8 @@ export default function HistoricoBem() {
         </div>
       )}
 
-      {/* Choice dialog: single or batch return */}
-      <AlertDialog open={returnChoiceOpen} onOpenChange={setReturnChoiceOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Como deseja devolver?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Deseja devolver apenas este item ou devolver em lote (selecionar vários itens)?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSingleReturn}>
-              Apenas este item
-            </AlertDialogAction>
-            <AlertDialogAction onClick={handleBatchReturn}>
-              Devolver em lote
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
-      <DevolucaoDialog
-        open={devolucaoDialogOpen}
-        onOpenChange={setDevolucaoDialogOpen}
-        preSelectedEntregaId={devolucaoPreSelectedId}
-        onDevolucaoComplete={refreshEntregas}
-      />
+
     </div>
   );
 }
