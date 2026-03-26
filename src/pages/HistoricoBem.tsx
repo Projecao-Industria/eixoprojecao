@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2, Trash2 } from "lucide-react";
+import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2, Trash2, Printer } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   formatCurrency,
