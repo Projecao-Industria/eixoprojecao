@@ -99,6 +99,26 @@ export default function EntregaDialog({ open, onOpenChange, categoriasPermitidas
 
     const selectedBens = bens.filter(b => selected.has(b.id));
 
+    // Check if any selected bens already have active (unreturned) deliveries
+    const { data: activeEntregas } = await supabase
+      .from("entregas")
+      .select("bem_id")
+      .in("bem_id", selectedBens.map(b => b.id))
+      .is("data_devolucao", null);
+
+    if (activeEntregas && activeEntregas.length > 0) {
+      const activeIds = [...new Set(activeEntregas.map(e => e.bem_id))];
+      const activeDescriptions = selectedBens
+        .filter(b => activeIds.includes(b.id))
+        .map(b => `#${b.id} - ${b.descricao}`);
+      toast({
+        title: "Bens já entregues sem devolução",
+        description: `Os seguintes bens já possuem entrega ativa e precisam ser devolvidos antes de uma nova entrega:\n${activeDescriptions.join(", ")}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Check if all selected bens belong to sectors with the same current manager
     const setorIds = [...new Set(selectedBens.map(b => b.setor_id))];
 

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2, Trash2 } from "lucide-react";
+import { Search, Package, Wrench, FileText, Car, Cog, Pencil, Save, PackageCheck, Undo2, Trash2, Printer } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   formatCurrency,
@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import DevolucaoDialog from "@/components/DevolucaoDialog";
 
 interface EntregaDB {
   id: string;
@@ -68,6 +69,10 @@ export default function HistoricoBem() {
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
   const [entregas, setEntregas] = useState<EntregaDB[]>([]);
+  const [devolucaoDialogOpen, setDevolucaoDialogOpen] = useState(false);
+  const [devolucaoPreSelectedId, setDevolucaoPreSelectedId] = useState<string | null>(null);
+  const [returnChoiceOpen, setReturnChoiceOpen] = useState(false);
+  const [returnChoiceEntregaId, setReturnChoiceEntregaId] = useState<string | null>(null);
 
   useEffect(() => {
     const fromUrl = searchParams.get("bem");
@@ -233,6 +238,58 @@ export default function HistoricoBem() {
     }
     setEntregas(prev => prev.filter(e => e.id !== entregaId));
     toast.success("Registro de entrega excluído!");
+  };
+
+  const handlePrintEntrega = (entrega: EntregaDB) => {
+    if (!entrega.dataDevolucao) {
+      // Item still in possession - show choice: single or batch
+      setReturnChoiceEntregaId(entrega.id);
+      setReturnChoiceOpen(true);
+    }
+  };
+
+  const handleSingleReturn = async () => {
+    if (!returnChoiceEntregaId) return;
+    const today = new Date().toISOString().split("T")[0];
+    const { error } = await supabase
+      .from("entregas")
+      .update({ data_devolucao: today })
+      .eq("id", returnChoiceEntregaId);
+    if (error) {
+      toast.error("Erro ao registrar devolução");
+    } else {
+      setEntregas(prev =>
+        prev.map(e => e.id === returnChoiceEntregaId ? { ...e, dataDevolucao: today } : e)
+      );
+      toast.success("Devolução registrada!");
+    }
+    setReturnChoiceOpen(false);
+    setReturnChoiceEntregaId(null);
+  };
+
+  const handleBatchReturn = () => {
+    setReturnChoiceOpen(false);
+    setDevolucaoPreSelectedId(returnChoiceEntregaId);
+    setDevolucaoDialogOpen(true);
+    setReturnChoiceEntregaId(null);
+  };
+
+  const refreshEntregas = async () => {
+    if (!bemId) return;
+    const { data: eData } = await supabase
+      .from("entregas")
+      .select("*")
+      .eq("bem_id", bemId)
+      .order("data_entrega", { ascending: false });
+    setEntregas(
+      (eData || []).map((e: any) => ({
+        id: e.id,
+        bemId: e.bem_id,
+        gerenteNome: e.gerente_nome,
+        dataEntrega: e.data_entrega,
+        dataDevolucao: e.data_devolucao,
+      }))
+    );
   };
 
   const isVeiculo = bem?.categoria === "Veículos";
@@ -455,50 +512,57 @@ export default function HistoricoBem() {
                             <td className="px-4 py-3 text-right">
                               <div className="flex items-center justify-end gap-1">
                                 {!e.dataDevolucao && (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="outline" size="sm" className="gap-1">
-                                        <Undo2 size={14} /> Devolução
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
-                                          Confirmar
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
+                                  <>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button variant="outline" size="sm" className="gap-1">
+                                          <Undo2 size={14} /> Devolução
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
+                                            Confirmar
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handlePrintEntrega(e)}>
+                                      <Printer size={14} />
+                                    </Button>
+                                  </>
                                 )}
                                 {e.dataDevolucao && (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive">
-                                        <Trash2 size={14} />
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Excluir Registro de Entrega</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Deseja apagar o registro de entrega? Utilizar apenas para erros de lançamentos.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteEntrega(e.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                          Excluir
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
+                                  <>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive">
+                                          <Trash2 size={14} />
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Excluir Registro de Entrega</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            Deseja apagar o registro de entrega? Utilizar apenas para erros de lançamentos.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDeleteEntrega(e.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                            Excluir
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </>
                                 )}
                               </div>
                             </td>
@@ -513,6 +577,34 @@ export default function HistoricoBem() {
           </Tabs>
         </div>
       )}
+
+      {/* Choice dialog: single or batch return */}
+      <AlertDialog open={returnChoiceOpen} onOpenChange={setReturnChoiceOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Como deseja devolver?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja devolver apenas este item ou devolver em lote (selecionar vários itens)?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSingleReturn}>
+              Apenas este item
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleBatchReturn}>
+              Devolver em lote
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <DevolucaoDialog
+        open={devolucaoDialogOpen}
+        onOpenChange={setDevolucaoDialogOpen}
+        preSelectedEntregaId={devolucaoPreSelectedId}
+        onDevolucaoComplete={refreshEntregas}
+      />
     </div>
   );
 }
