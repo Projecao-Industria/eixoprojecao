@@ -23,7 +23,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import DevolucaoDialog from "@/components/DevolucaoDialog";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface EntregaDB {
   id: string;
