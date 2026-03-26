@@ -68,6 +68,10 @@ export default function HistoricoBem() {
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
   const [entregas, setEntregas] = useState<EntregaDB[]>([]);
+  const [devolucaoDialogOpen, setDevolucaoDialogOpen] = useState(false);
+  const [devolucaoPreSelectedId, setDevolucaoPreSelectedId] = useState<string | null>(null);
+  const [returnChoiceOpen, setReturnChoiceOpen] = useState(false);
+  const [returnChoiceEntregaId, setReturnChoiceEntregaId] = useState<string | null>(null);
 
   useEffect(() => {
     const fromUrl = searchParams.get("bem");
