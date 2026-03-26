@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import DevolucaoDialog from "@/components/DevolucaoDialog";
 
 interface EntregaDB {
   id: string;
