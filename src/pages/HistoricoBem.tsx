@@ -533,35 +533,33 @@ export default function HistoricoBem() {
                             <td className="px-4 py-3 text-right">
                               <div className="flex items-center justify-end gap-1">
                                 {!e.dataDevolucao && (
-                                  <>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="sm" className="gap-1">
-                                          <Undo2 size={14} /> Devolução
-                                        </Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
-                                            Confirmar
-                                          </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handlePrintEntrega(e)}>
-                                      <Printer size={14} />
-                                    </Button>
-                                  </>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="outline" size="sm" className="gap-1">
+                                        <Undo2 size={14} /> Devolução
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirmar Devolução</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Deseja registrar a devolução deste bem? A data de hoje será usada como data de devolução.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDevolucao(e.id)}>
+                                          Confirmar
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
                                 )}
                                 {e.dataDevolucao && (
                                   <>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handlePrintDevolucao(e)}>
+                                      <Printer size={14} />
+                                    </Button>
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive">
