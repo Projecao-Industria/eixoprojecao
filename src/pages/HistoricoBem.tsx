@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import DevolucaoLoteDialog from "@/components/DevolucaoLoteDialog";
 
 interface EntregaDB {
   id: string;
@@ -70,6 +71,7 @@ export default function HistoricoBem() {
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
   const [entregas, setEntregas] = useState<EntregaDB[]>([]);
+  const [devolucaoLoteOpen, setDevolucaoLoteOpen] = useState(false);
 
 
   useEffect(() => {
@@ -336,6 +338,9 @@ export default function HistoricoBem() {
             className="pl-9 max-w-sm"
           />
         </div>
+        <Button variant="outline" className="gap-2 mt-3" onClick={() => setDevolucaoLoteOpen(true)}>
+          <Undo2 size={16} /> Devoluções em Lote
+        </Button>
       </div>
 
       {bemId && !bem && !loading && (
@@ -598,7 +603,7 @@ export default function HistoricoBem() {
       )}
 
 
-
+      <DevolucaoLoteDialog open={devolucaoLoteOpen} onOpenChange={setDevolucaoLoteOpen} />
     </div>
   );
 }
