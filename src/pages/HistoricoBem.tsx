@@ -71,6 +71,7 @@ export default function HistoricoBem() {
   const [manutencoes, setManutencoes] = useState<ManutencaoDB[]>([]);
   const [loading, setLoading] = useState(false);
   const [entregas, setEntregas] = useState<EntregaDB[]>([]);
+  const [devolucaoLoteOpen, setDevolucaoLoteOpen] = useState(false);
 
 
   useEffect(() => {
