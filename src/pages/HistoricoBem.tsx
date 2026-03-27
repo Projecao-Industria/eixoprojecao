@@ -603,7 +603,7 @@ export default function HistoricoBem() {
       )}
 
 
-
+      <DevolucaoLoteDialog open={devolucaoLoteOpen} onOpenChange={setDevolucaoLoteOpen} />
     </div>
   );
 }
