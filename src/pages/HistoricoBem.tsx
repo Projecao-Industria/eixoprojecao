@@ -338,10 +338,11 @@ export default function HistoricoBem() {
             className="pl-9 max-w-sm"
           />
         </div>
-        <Button variant="outline" className="gap-2 mt-3" onClick={() => setDevolucaoLoteOpen(true)}>
-          <Undo2 size={16} /> Devoluções em Lote
-        </Button>
       </div>
+
+      <Button variant="outline" className="gap-2" onClick={() => setDevolucaoLoteOpen(true)}>
+        <Undo2 size={16} /> Devoluções em Lote
+      </Button>
 
       {bemId && !bem && !loading && (
         <div className="bg-card rounded-xl border border-border p-8 text-center animate-fade-in">
