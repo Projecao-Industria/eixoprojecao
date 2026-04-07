@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, LayoutDashboard, Package, Wrench, Users, Settings, History, CalendarDays } from "lucide-react";
+import { Menu, X, LayoutDashboard, Package, Wrench, Users, Settings, History, CalendarDays, HardHat, Hammer } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -9,6 +9,8 @@ const allLinks = [
   { to: "/manutencao", label: "Manutenção", icon: Wrench, directorOnly: false, hideForManutencao: false },
   { to: "/historico", label: "Histórico", icon: History, directorOnly: false, hideForManutencao: false },
   { to: "/calendario", label: "Calendário", icon: CalendarDays, directorOnly: false, hideForManutencao: false },
+  { to: "/epis", label: "EPIs", icon: HardHat, directorOnly: false, hideForManutencao: false },
+  { to: "/ferramentas-consumo", label: "Ferr. Consumo", icon: Hammer, directorOnly: false, hideForManutencao: false },
   { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true, hideForManutencao: false },
   { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true, hideForManutencao: false },
 ];
