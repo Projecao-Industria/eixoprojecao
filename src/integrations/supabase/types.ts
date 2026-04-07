@@ -193,6 +193,192 @@ export type Database = {
         }
         Relationships: []
       }
+      epis: {
+        Row: {
+          categoria_id: string
+          created_at: string
+          data_baixa: string | null
+          data_compra: string
+          depreciacao_anual: number
+          descricao: string
+          id: string
+          motivo_baixa: string
+          nfe: string
+          numero_aprovacao: string
+          setor_id: string
+          status: Database["public"]["Enums"]["status_bem"]
+          usuario: string
+          valor_compra: number
+        }
+        Insert: {
+          categoria_id: string
+          created_at?: string
+          data_baixa?: string | null
+          data_compra: string
+          depreciacao_anual?: number
+          descricao: string
+          id: string
+          motivo_baixa?: string
+          nfe?: string
+          numero_aprovacao?: string
+          setor_id: string
+          status?: Database["public"]["Enums"]["status_bem"]
+          usuario?: string
+          valor_compra?: number
+        }
+        Update: {
+          categoria_id?: string
+          created_at?: string
+          data_baixa?: string | null
+          data_compra?: string
+          depreciacao_anual?: number
+          descricao?: string
+          id?: string
+          motivo_baixa?: string
+          nfe?: string
+          numero_aprovacao?: string
+          setor_id?: string
+          status?: Database["public"]["Enums"]["status_bem"]
+          usuario?: string
+          valor_compra?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epis_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epis_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epis_entregas: {
+        Row: {
+          bem_id: string
+          created_at: string
+          data_devolucao: string | null
+          data_entrega: string
+          gerente_nome: string
+          id: string
+        }
+        Insert: {
+          bem_id: string
+          created_at?: string
+          data_devolucao?: string | null
+          data_entrega: string
+          gerente_nome?: string
+          id?: string
+        }
+        Update: {
+          bem_id?: string
+          created_at?: string
+          data_devolucao?: string | null
+          data_entrega?: string
+          gerente_nome?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      ferramentas_consumo: {
+        Row: {
+          categoria_id: string
+          created_at: string
+          data_baixa: string | null
+          data_compra: string
+          depreciacao_anual: number
+          descricao: string
+          id: string
+          motivo_baixa: string
+          nfe: string
+          numero_aprovacao: string
+          setor_id: string
+          status: Database["public"]["Enums"]["status_bem"]
+          usuario: string
+          valor_compra: number
+        }
+        Insert: {
+          categoria_id: string
+          created_at?: string
+          data_baixa?: string | null
+          data_compra: string
+          depreciacao_anual?: number
+          descricao: string
+          id: string
+          motivo_baixa?: string
+          nfe?: string
+          numero_aprovacao?: string
+          setor_id: string
+          status?: Database["public"]["Enums"]["status_bem"]
+          usuario?: string
+          valor_compra?: number
+        }
+        Update: {
+          categoria_id?: string
+          created_at?: string
+          data_baixa?: string | null
+          data_compra?: string
+          depreciacao_anual?: number
+          descricao?: string
+          id?: string
+          motivo_baixa?: string
+          nfe?: string
+          numero_aprovacao?: string
+          setor_id?: string
+          status?: Database["public"]["Enums"]["status_bem"]
+          usuario?: string
+          valor_compra?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ferramentas_consumo_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ferramentas_consumo_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ferramentas_consumo_entregas: {
+        Row: {
+          bem_id: string
+          created_at: string
+          data_devolucao: string | null
+          data_entrega: string
+          gerente_nome: string
+          id: string
+        }
+        Insert: {
+          bem_id: string
+          created_at?: string
+          data_devolucao?: string | null
+          data_entrega: string
+          gerente_nome?: string
+          id?: string
+        }
+        Update: {
+          bem_id?: string
+          created_at?: string
+          data_devolucao?: string | null
+          data_entrega?: string
+          gerente_nome?: string
+          id?: string
+        }
+        Relationships: []
+      }
       gerentes: {
         Row: {
           cpf: string
