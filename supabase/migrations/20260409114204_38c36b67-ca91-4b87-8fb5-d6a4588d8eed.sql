@@ -1,0 +1,11 @@
+INSERT INTO public.epis (id, descricao, categoria_id, setor_id, usuario, data_compra, nfe, valor_compra, depreciacao_anual, status) VALUES
+('EPI-001', 'Capacete de Segurança Classe A', 'f5a1fdd2-6fe3-441f-80ce-e399a320a568', '31336b3f-4a5e-4d5d-b1e1-07d34ec7eaba', 'João Silva', '2025-01-15', 'NF-5001', 45.90, 20, 'Ativo'),
+('EPI-002', 'Luvas de Proteção Térmica', 'f5a1fdd2-6fe3-441f-80ce-e399a320a568', '88dfb5af-f707-4a5c-93e6-4891367cf4c0', 'Carlos Souza', '2025-02-10', 'NF-5002', 32.50, 25, 'Ativo'),
+('EPI-003', 'Óculos de Proteção Ampla Visão', '463069c1-a215-415f-89c9-fd033a76b1f1', 'cab1d72e-0bf3-40fa-ba18-f1d6aec277a7', 'Ana Costa', '2025-03-05', 'NF-5003', 28.00, 20, 'Ativo'),
+('EPI-004', 'Protetor Auricular Tipo Concha', '463069c1-a215-415f-89c9-fd033a76b1f1', '31336b3f-4a5e-4d5d-b1e1-07d34ec7eaba', 'Pedro Lima', '2025-01-20', 'NF-5004', 55.00, 15, 'Ativo'),
+('EPI-005', 'Bota de Segurança com Biqueira de Aço', 'f5a1fdd2-6fe3-441f-80ce-e399a320a568', '83d730aa-7173-403f-b78a-da562a03d36a', 'Maria Oliveira', '2024-11-12', 'NF-5005', 120.00, 20, 'Ativo'),
+('EPI-006', 'Máscara Respiratória PFF2', '463069c1-a215-415f-89c9-fd033a76b1f1', '2315e812-50fe-497b-a4df-3f6a27d18f0b', 'Lucas Mendes', '2025-04-01', 'NF-5006', 15.90, 30, 'Ativo'),
+('EPI-007', 'Cinto de Segurança Paraquedista', 'f5a1fdd2-6fe3-441f-80ce-e399a320a568', 'c0767ec5-9eb2-4f83-ba28-4b2d8582b936', 'Roberto Alves', '2024-08-20', 'NF-5007', 350.00, 10, 'Ativo'),
+('EPI-008', 'Avental de Raspa de Couro', '463069c1-a215-415f-89c9-fd033a76b1f1', '31336b3f-4a5e-4d5d-b1e1-07d34ec7eaba', 'Fernando Santos', '2025-02-28', 'NF-5008', 85.00, 20, 'Ativo'),
+('EPI-009', 'Luva de Vaqueta Cano Longo', '463069c1-a215-415f-89c9-fd033a76b1f1', '88dfb5af-f707-4a5c-93e6-4891367cf4c0', 'Marcos Pereira', '2024-06-15', 'NF-5009', 42.00, 25, 'Baixado'),
+('EPI-010', 'Capacete com Protetor Facial', 'f5a1fdd2-6fe3-441f-80ce-e399a320a568', 'c0767ec5-9eb2-4f83-ba28-4b2d8582b936', 'Thiago Rocha', '2025-03-18', 'NF-5010', 95.00, 15, 'Ativo');
