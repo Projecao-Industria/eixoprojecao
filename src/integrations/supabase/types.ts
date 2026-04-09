@@ -195,49 +195,58 @@ export type Database = {
       }
       epis: {
         Row: {
-          categoria_id: string
+          categoria_id: string | null
           created_at: string
           data_baixa: string | null
           data_compra: string
+          data_vencimento: string | null
           depreciacao_anual: number
           descricao: string
           id: string
+          marca: string
           motivo_baixa: string
           nfe: string
           numero_aprovacao: string
-          setor_id: string
+          numero_ca: string
+          setor_id: string | null
           status: Database["public"]["Enums"]["status_bem"]
           usuario: string
           valor_compra: number
         }
         Insert: {
-          categoria_id: string
+          categoria_id?: string | null
           created_at?: string
           data_baixa?: string | null
           data_compra: string
+          data_vencimento?: string | null
           depreciacao_anual?: number
           descricao: string
           id: string
+          marca?: string
           motivo_baixa?: string
           nfe?: string
           numero_aprovacao?: string
-          setor_id: string
+          numero_ca?: string
+          setor_id?: string | null
           status?: Database["public"]["Enums"]["status_bem"]
           usuario?: string
           valor_compra?: number
         }
         Update: {
-          categoria_id?: string
+          categoria_id?: string | null
           created_at?: string
           data_baixa?: string | null
           data_compra?: string
+          data_vencimento?: string | null
           depreciacao_anual?: number
           descricao?: string
           id?: string
+          marca?: string
           motivo_baixa?: string
           nfe?: string
           numero_aprovacao?: string
-          setor_id?: string
+          numero_ca?: string
+          setor_id?: string | null
           status?: Database["public"]["Enums"]["status_bem"]
           usuario?: string
           valor_compra?: number
