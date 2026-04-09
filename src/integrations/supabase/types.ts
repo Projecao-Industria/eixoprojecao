@@ -195,58 +195,49 @@ export type Database = {
       }
       epis: {
         Row: {
-          categoria_id: string | null
+          categoria_id: string
           created_at: string
           data_baixa: string | null
-          data_compra: string | null
-          data_vencimento: string | null
+          data_compra: string
           depreciacao_anual: number
           descricao: string
           id: string
-          marca: string
           motivo_baixa: string
           nfe: string
           numero_aprovacao: string
-          numero_ca: string
-          setor_id: string | null
+          setor_id: string
           status: Database["public"]["Enums"]["status_bem"]
           usuario: string
           valor_compra: number
         }
         Insert: {
-          categoria_id?: string | null
+          categoria_id: string
           created_at?: string
           data_baixa?: string | null
-          data_compra?: string | null
-          data_vencimento?: string | null
+          data_compra: string
           depreciacao_anual?: number
           descricao: string
           id: string
-          marca?: string
           motivo_baixa?: string
           nfe?: string
           numero_aprovacao?: string
-          numero_ca?: string
-          setor_id?: string | null
+          setor_id: string
           status?: Database["public"]["Enums"]["status_bem"]
           usuario?: string
           valor_compra?: number
         }
         Update: {
-          categoria_id?: string | null
+          categoria_id?: string
           created_at?: string
           data_baixa?: string | null
-          data_compra?: string | null
-          data_vencimento?: string | null
+          data_compra?: string
           depreciacao_anual?: number
           descricao?: string
           id?: string
-          marca?: string
           motivo_baixa?: string
           nfe?: string
           numero_aprovacao?: string
-          numero_ca?: string
-          setor_id?: string | null
+          setor_id?: string
           status?: Database["public"]["Enums"]["status_bem"]
           usuario?: string
           valor_compra?: number
