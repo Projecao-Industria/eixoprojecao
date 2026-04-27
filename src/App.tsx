@@ -14,6 +14,7 @@ import HistoricoBem from "./pages/HistoricoBem";
 import CalendarioManutencoes from "./pages/CalendarioManutencoes";
 import EPIs from "./pages/EPIs";
 import FerramentasConsumo from "./pages/FerramentasConsumo";
+import QRCodesMaquinas from "./pages/QRCodesMaquinas";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/calendario" element={<CalendarioManutencoes />} />
               <Route path="/epis" element={<EPIs />} />
               <Route path="/ferramentas-consumo" element={<FerramentasConsumo />} />
+              <Route path="/qrcodes" element={<QRCodesMaquinas />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
