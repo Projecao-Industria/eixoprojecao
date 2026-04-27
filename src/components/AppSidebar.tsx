@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, CalendarDays, LogOut, HardHat, Hammer } from "lucide-react";
+import { LayoutDashboard, Package, Wrench, Users, User, Settings, History, CalendarDays, LogOut, HardHat, Hammer, QrCode } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { currentUser } from "@/lib/mockData";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +13,7 @@ const allLinks = [
   { to: "/calendario", label: "Calendário", icon: CalendarDays, directorOnly: false, hideForManutencao: false },
   { to: "/epis", label: "EPIs", icon: HardHat, directorOnly: false, hideForManutencao: false },
   { to: "/ferramentas-consumo", label: "Ferr. Consumo", icon: Hammer, directorOnly: false, hideForManutencao: false },
+  { to: "/qrcodes", label: "QR Manutenção", icon: QrCode, directorOnly: true, hideForManutencao: false },
   { to: "/usuarios", label: "Usuários", icon: Users, directorOnly: true, hideForManutencao: false },
   { to: "/cadastros", label: "Cadastros", icon: Settings, directorOnly: true, hideForManutencao: false },
 ];
